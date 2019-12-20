@@ -16,7 +16,7 @@ see PyAMS_content package), but many features are generic and can be used inside
 application.
 
 All PyAMS documentation is available on `ReadTheDocs <https://pyams.readthedocs.io>`_; source files
-are available on `Gitlab <https://gitlab.com/pyams>`.
+are available on `Gitlab <https://gitlab.com/pyams>`_.
 
 
 What is PyAMS_file?
