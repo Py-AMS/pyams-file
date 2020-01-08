@@ -15,14 +15,14 @@
 This module provides all custom file-related schema fields.
 """
 
-from zope.component import getMultiAdapter
 from zope.interface import Attribute, Interface, implementer
 from zope.schema import Bytes
 from zope.schema.interfaces import IBytes, RequiredMissing, WrongType
 
 from pyams_file.interfaces import IAudioFile, IBaseImageFile, IFile, IMediaFile, IVideoFile
 from pyams_i18n.schema import I18nField, II18nField
-from pyams_utils.interfaces.form import TO_BE_DELETED, NOT_CHANGED, IDataManager
+from pyams_utils.interfaces.form import IDataManager, NOT_CHANGED, TO_BE_DELETED
+from pyams_utils.registry import get_current_registry
 
 
 __docformat__ = 'restructuredtext'
@@ -169,10 +169,11 @@ class I18nFileField(I18nField):
             if not value:
                 raise RequiredMissing
             has_value = False
+            registry = get_current_registry()
             for lang, lang_value in value.items():
                 # check for NOT_CHANGED value
                 if lang_value is NOT_CHANGED:  # check for empty file value
-                    adapter = getMultiAdapter((self.context, self), IDataManager)
+                    adapter = registry.getMultiAdapter((self.context, self), IDataManager)
                     try:
                         old_value = adapter.query() or {}
                     except TypeError:  # can't adapt field context => new content?
