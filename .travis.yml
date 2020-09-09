@@ -8,7 +8,6 @@ python:
 before_install:
 - sudo apt-get -y install libmagic1
 install:
-- apt-get install libmagic1
 - pip install coverage coveralls
 - python bootstrap.py
 - ./bin/buildout
