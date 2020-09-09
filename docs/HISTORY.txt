@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.1
+-----
+ - updated doctests for Travis-CI
+ - updated Travis-CI configuration
+
 1.1.0
 -----
  - added watermark opacity argument to IThumbnails.get_thumbnail interface
