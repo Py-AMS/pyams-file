@@ -37,16 +37,19 @@ class PictureTALESExtension(ContextRequestViewAdapter):
     embedding all image attributes.
     """
 
-    def render(self, context=None, lg_thumb='lg', lg_width=12, md_thumb='md', md_width=12,
-               sm_thumb='sm', sm_width=12, xs_thumb='xs', xs_width=12,
-               def_thumb=None, def_width=None, alt='', css_class=''):
-        # pylint: disable=too-many-arguments
+    def render(self, context=None,
+               xl_thumb='xl', xl_width=12, lg_thumb='lg', lg_width=12,
+               md_thumb='md', md_width=12, sm_thumb='sm', sm_width=12,
+               xs_thumb='xs', xs_width=12, def_thumb=None, def_width=None,
+               alt='', css_class=''):
+        # pylint: disable=too-many-arguments,too-many-locals
         """Render TALES extension"""
         if context is None:
             context = self.context
         if context.content_type.startswith('image/svg'):
             return render('templates/svg-picture.pt', {
                 'image': context,
+                'xl_width': xl_width,
                 'lg_width': lg_width,
                 'md_width': md_width,
                 'sm_width': sm_width,
@@ -55,11 +58,13 @@ class PictureTALESExtension(ContextRequestViewAdapter):
                 'css_class': css_class
             }, request=self.request)
         if def_thumb is None:
-            def_thumb = md_thumb or lg_thumb or sm_thumb or xs_thumb
+            def_thumb = md_thumb or lg_thumb or sm_thumb or xs_thumb or xl_thumb
         if def_width is None:
-            def_width = md_width or lg_width or sm_width or xs_width
+            def_width = md_width or lg_width or sm_width or xs_width or xl_width
         return render('templates/picture.pt', {
             'image': context,
+            'xl_thumb': xl_thumb,
+            'xl_width': xl_width,
             'lg_thumb': lg_thumb,
             'lg_width': lg_width,
             'md_thumb': md_thumb,
@@ -103,9 +108,9 @@ class ThumbnailExtension(ContextRequestViewAdapter):
     given image.
     """
 
-    def render(self, context=None, width=None, height=None, css_class='', img_class=''):
+    def render(self, context=None, width=None, height=None, css_class='', img_class='', alt=''):
         # pylint: disable=too-many-arguments
         """Render TALES extension"""
         if context is None:
             context = self.context
-        return render_image(context, width, height, self.request, css_class, img_class, True)
+        return render_image(context, width, height, self.request, css_class, img_class, True, alt)
