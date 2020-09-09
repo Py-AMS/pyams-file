@@ -17,6 +17,7 @@ This module provides functions used to render images.
 
 from datetime import datetime
 
+from pyquery import PyQuery
 from pyramid.renderers import render
 from zope.dublincore.interfaces import IZopeDublinCore
 
@@ -29,10 +30,10 @@ from pyams_utils.url import absolute_url
 __docformat__ = 'restructuredtext'
 
 
-def render_svg(image, width=None, height=None, request=None, css_class='', img_class=''):
+def render_svg(image, width=None, height=None, request=None, css_class='', img_class='', alt=''):
     """Render SVG file"""
     # pylint: disable=too-many-arguments
-    options = {'svg': image}
+    options = {}
     if width or height:
         options['style'] = 'width: {0}{1}; height: {2}{3};'.format(
             width, 'px' if isinstance(width, int) else '',
@@ -40,14 +41,24 @@ def render_svg(image, width=None, height=None, request=None, css_class='', img_c
     else:
         options['style'] = ''
     options['css_class'] = css_class
-    result = render('templates/svg-render.pt', options, request)
-    if img_class:
-        result = result.replace('<svg ', '<svg class="{0}" '.format(img_class))
-    return result
+    if alt or img_class:
+        svg = PyQuery(image.data)
+        if alt:
+            group = PyQuery('<g></g>')
+            group.append(PyQuery('<title />').text(alt))
+            for child in svg.children():
+                group.append(child)
+            svg.empty().append(group)
+        if img_class:
+            svg.attr('class', img_class)
+        options['svg'] = svg.outer_html()
+    else:
+        options['svg'] = image.data
+    return render('templates/svg-render.pt', options, request)
 
 
 def render_img(image, width=None, height=None, request=None, css_class='', img_class='',
-               timestamp=False):
+               timestamp=False, alt=''):
     # pylint: disable=too-many-arguments,assignment-from-no-return
     """Render image thumbnail"""
     thumbnail = None
@@ -71,16 +82,16 @@ def render_img(image, width=None, height=None, request=None, css_class='', img_c
         else:
             timestamp = zdc.modified.timestamp()    # pylint: disable=no-member
         url += '?_={0}'.format(timestamp)
-    result = '<img src="{0}" class="{1}" />'.format(url, img_class)
+    result = '<img src="{0}" class="{1}" alt="{2}" />'.format(url, img_class, alt)
     if css_class:
         result = '<div class="{0}">{1}</div>'.format(css_class, result)
     return result
 
 
 def render_image(image, width=None, height=None, request=None, css_class='', img_class='',
-                 timestamp=False):
+                 timestamp=False, alt=''):
     # pylint: disable=too-many-arguments
     """Render image"""
     if ISVGImageFile.providedBy(image):
-        return render_svg(image, width, height, request, css_class, img_class)
-    return render_img(image, width, height, request, css_class, img_class, timestamp)
+        return render_svg(image, width, height, request, css_class, img_class, alt)
+    return render_img(image, width, height, request, css_class, img_class, timestamp, alt)
