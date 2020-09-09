@@ -46,12 +46,14 @@ def FileView(request):  # pylint: disable=invalid-name
     zdc = IZopeDublinCore(context, None)
     if zdc is not None:
         modified = zdc.modified
-        if_modified_since = request.if_modified_since
-        # pylint: disable=no-member
-        if if_modified_since and (int(modified.timestamp()) <= int(if_modified_since.timestamp())):
-            return Response(content_type=content_type,
-                            status=NOT_MODIFIED)
-        response.last_modified = modified
+        if modified is not None:
+            if_modified_since = request.if_modified_since
+            # pylint: disable=no-member
+            if if_modified_since and \
+                    (int(modified.timestamp()) <= int(if_modified_since.timestamp())):
+                return Response(content_type=content_type,
+                                status=NOT_MODIFIED)
+            response.last_modified = modified
 
     body_file = context.get_blob(mode='c')
 
