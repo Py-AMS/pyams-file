@@ -2,15 +2,18 @@
 	class="${css_class}"
 	tal:define="image_url tales:absolute_url(image);">
 	<source tal:condition="not:xs_width"
-			media="(max-width: 767px)"
+			media="(max-width: 575px)"
 			srcset="/--static--/pyams_skin/img/dot.png" />
 	<source tal:condition="not:sm_width"
-			media="(max-width: 991px)"
+			media="(min-width: 576px)"
 			srcset="/--static--/pyams_skin/img/dot.png" />
 	<source tal:condition="not:md_width"
-			media="(max-width: 1199px)"
+			media="(min-width: 768px)"
 			srcset="/--static--/pyams_skin/img/dot.png" />
 	<source tal:condition="not:lg_width"
+			media="(min-width: 992px)"
+			srcset="/--static--/pyams_skin/img/dot.png" />
+	<source tal:condition="not:xl_width"
 			media="(min-width: 1200px)"
 			srcset="/--static--/pyams_skin/img/dot.png" />
 	<!-- fallback image -->
