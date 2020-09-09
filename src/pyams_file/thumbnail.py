@@ -19,7 +19,7 @@ import logging
 import re
 
 import transaction
-from BTrees import OOBTree  # pylint: disable=no-member
+from BTrees import OOBTree  # pylint: disable=no-name-in-module
 from persistent.dict import PersistentDict
 from pyramid.events import subscriber
 from pyramid.threadlocal import get_current_registry
@@ -170,8 +170,8 @@ class ImageThumbnailAdapter:
         return None
 
     def get_thumbnail(self, thumbnail_name, format=None, watermark=None,
-                      watermark_position='scale'):
-        # pylint: disable=redefined-builtin,too-many-locals,too-many-branches
+                      watermark_position='scale', watermark_opacity=1):
+        # pylint: disable=redefined-builtin,too-many-arguments,too-many-locals,too-many-branches
         """Get thumbnail for given thumbnail name, which can provide selection and size"""
         LOGGER.debug(">>> Requested thumbnail: {}".format(thumbnail_name))
         # check for existing thumbnail
@@ -218,7 +218,8 @@ class ImageThumbnailAdapter:
                         thumbnail_image.seek(0)
                         thumbnail_image, format = watermarker.add_watermark(thumbnail_image,
                                                                             watermark,
-                                                                            watermark_position)
+                                                                            watermark_position,
+                                                                            watermark_opacity)
                 # create final image
                 thumbnail_image = FileFactory(thumbnail_image)
                 alsoProvides(thumbnail_image, IThumbnailFile)

@@ -113,9 +113,9 @@ class IThumbnails(Interface):
     def get_selection(self, selection_name, format=None):
         """Get image for given user selection"""
 
-    # pylint:disable=redefined-builtin
+    # pylint:disable=redefined-builtin,too-many-arguments
     def get_thumbnail(self, thumbnail_name, format=None, watermark=None,
-                      watermark_position='scale'):
+                      watermark_position='scale', watermark_opacity=1):
         """Get requested thumbnail
 
         Display can be specified as:
