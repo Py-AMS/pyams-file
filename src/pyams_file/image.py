@@ -309,3 +309,11 @@ class LgImageThumbnailer(ResponsiveImageThumbnailer):
 
     label = _("Large screen thumbnail")
     weight = 13
+
+
+@adapter_config(name='xl', context=IResponsiveImage, provides=IThumbnailer)
+class XlImageThumbnailer(ResponsiveImageThumbnailer):
+    """EXtra-Large responsive image thumbnailer"""
+
+    label = _("Extra-large screen thumbnail")
+    weight = 14
