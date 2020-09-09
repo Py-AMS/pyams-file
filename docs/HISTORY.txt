@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.1.2
+-----
+ - updated Travis authentication token
+
 1.1.1
 -----
  - updated doctests for Travis-CI
