@@ -248,8 +248,6 @@ You can also render SVG images using this function:
     >>> transaction.commit()
 
     >>> img2 = content.data
-    >>> img2
-     <pyams_file.file.SVGImageFile object at 0x...>
     >>> render_svg(img2)
     '<div class=" display-inline align-middle svg-container"...>...<svg ...><path d="..." fill="#fff"/></svg>\n</div>\n'
 
