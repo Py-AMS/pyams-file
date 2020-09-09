@@ -23,7 +23,7 @@ DOCS = os.path.join(os.path.dirname(__file__),
 README = os.path.join(DOCS, 'README.txt')
 HISTORY = os.path.join(DOCS, 'HISTORY.txt')
 
-version = '1.0.1'
+version = '1.1.0'
 long_description = open(README).read() + '\n\n' + open(HISTORY).read()
 
 tests_require = [
@@ -65,12 +65,13 @@ setup(name='pyams_file',
           'pillow',
           'ZODB',
           'persistent',
-          'python-magic',
           'pyams_i18n',
           'pyams_site',
           'pyams_utils',
+          'pyquery',
           'pyramid',
           'pyramid_chameleon',
+          'python-magic',
           'zope.annotation',
           'zope.component',
           'zope.container',
