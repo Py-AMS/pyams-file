@@ -228,7 +228,7 @@ Rendering images
 PyAMS_file provides a few helpers to include an image tag into an HTML template:
 
     >>> transaction.commit()
-    >>> from pyams_file.skin import render_image
+    >>> from pyams_file.skin import render_image, render_svg
     >>> render_image(img, width=128, request=request)
     '<img src="http://example.com/content/++attr++img_data/++thumb++128x39.jpeg" class="" alt="" />'
     >>> render_image(th15, request=request)
@@ -244,19 +244,22 @@ You can also render SVG images using this function:
     >>> content = MyContent()
     >>> app['content-2'] = content
     >>> with open(svg_name, 'rb') as file:
-    ...     content.img_data = file
+    ...     content.data = file
     >>> transaction.commit()
 
-    >>> img2 = content.img_data
+    >>> img2 = content.data
     >>> img2
      <pyams_file.file.SVGImageFile object at 0x...>
-    >>> render_image(img2)
+    >>> render_svg(img2)
     '<div class=" display-inline align-middle svg-container"...>...<svg ...><path d="..." fill="#fff"/></svg>\n</div>\n'
 
 You can also provide an alternate text and a custom CSS class:
 
-    >>> render_image(img2, css_class='my-wrapper', img_class='my-picture', alt='My icon')
+    >>> render_svg(img2, css_class='my-wrapper', img_class='my-picture', alt='My icon')
     '<div class="my-wrapper display-inline align-middle svg-container"...>...<svg xmlns="..." viewBox="..." class="my-picture"><g><title>My icon</title><path d="..." fill="#fff"></path></g></svg>\n</div>\n'
+
+Note: *render_image* function can render bitmap images as well as SVG images; we only use the
+*render_svg* function here for testing purpose:
 
 
 Watermarking
