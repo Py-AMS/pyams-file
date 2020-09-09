@@ -128,7 +128,7 @@ Using selections
 Selections allow to select parts of your image of a selected ratio; they can also be used, in
 different circumstances, to provide custom parts of an image which will be used in responsive
 mode in a "<picture />" HTML tag; selections are given names based on the different Bootstrap
-medias sizes ("xs", "sm", "md" and "lg"), and on custom predefined aspect ratios: "portrait",
+medias sizes ("xs", "sm", "md", "lg" and "xl"), and on custom predefined aspect ratios: "portrait",
 "square", "pano", "card" and "banner" which are used inside PyAMS:
 
     >>> th6 = thumbs.get_thumbnail('sm')
@@ -230,9 +230,33 @@ PyAMS_file provides a few helpers to include an image tag into an HTML template:
     >>> transaction.commit()
     >>> from pyams_file.skin import render_image
     >>> render_image(img, width=128, request=request)
-    '<img src="http://example.com/content/++attr++img_data/++thumb++128x39.jpeg" class="" />'
+    '<img src="http://example.com/content/++attr++img_data/++thumb++128x39.jpeg" class="" alt="" />'
     >>> render_image(th15, request=request)
-    '<img src="http://example.com/content/++attr++img_data/++thumb++banner:535x106.png/++thumb++128x25.png" class="" />'
+    '<img src="http://example.com/content/++attr++img_data/++thumb++banner:535x106.png/++thumb++128x25.png" class="" alt="" />'
+
+You can also render SVG images using this function:
+
+    >>> from pyramid_chameleon import zpt
+    >>> config.add_renderer('.pt', zpt.renderer_factory)
+
+    >>> svg_name = os.path.join(sys.modules['pyams_file.tests'].__path__[0], 'icon.svg')
+
+    >>> content = MyContent()
+    >>> app['content-2'] = content
+    >>> with open(svg_name, 'rb') as file:
+    ...     content.img_data = file
+    >>> transaction.commit()
+
+    >>> img2 = content.img_data
+    >>> img2
+     <pyams_file.file.SVGImageFile object at 0x...>
+    >>> render_image(img2)
+    '<div class=" display-inline align-middle svg-container"...>...<svg ...><path d="..." fill="#fff"/></svg>\n</div>\n'
+
+You can also provide an alternate text and a custom CSS class:
+
+    >>> render_image(img2, css_class='my-wrapper', img_class='my-picture', alt='My icon')
+    '<div class="my-wrapper display-inline align-middle svg-container"...>...<svg xmlns="..." viewBox="..." class="my-picture"><g><title>My icon</title><path d="..." fill="#fff"></path></g></svg>\n</div>\n'
 
 
 Watermarking
@@ -247,6 +271,46 @@ scaling the watermark image to fit the original image size; you can use the "til
 the watermark over the original image several times, or you can provide a tuple to set watermark
 position in (x, y) above the original image, without scaling in this case.
 
+    >>> img_name = os.path.join(sys.modules['pyams_file.tests'].__path__[0], 'background.jpg')
+    >>> wtm_name = os.path.join(sys.modules['pyams_file.tests'].__path__[0], 'watermark.png')
+
+    >>> content = MyContent()
+    >>> app['content-3'] = content
+    >>> with open(img_name, 'rb') as file:
+    ...     content.img_data = file
+    >>> transaction.commit()
+
+    >>> img3 = content.img_data
+    >>> img3
+    <pyams_file.file.ImageFile object at 0x...>
+    >>> alsoProvides(img3, IResponsiveImage)
+
+    >>> thumbs = IThumbnails(img3)
+    >>> th16 = thumbs.get_thumbnail('xl', watermark=wtm_name)
+    >>> th16
+    <pyams_file.file.ImageFile object at 0x...>
+    >>> th16.get_image_size()
+    (1320, 770)
+
+You can also specify custom watermarks positions:
+
+    >>> thumbs.delete_thumbnail('xl')
+    >>> th17 = thumbs.get_thumbnail('xl', watermark=wtm_name, watermark_position='tile')
+    >>> th17.get_image_size()
+    (1320, 770)
+
+    >>> thumbs.delete_thumbnail('xl')
+    >>> th18 = thumbs.get_thumbnail('xl', watermark=wtm_name, watermark_position='scale')
+    >>> th18.get_image_size()
+    (1320, 770)
+
+Watermark opacity can also be set:
+
+    >>> thumbs.delete_thumbnail('xl')
+    >>> th19 = thumbs.get_thumbnail('xl', watermark=wtm_name, watermark_opacity=0.5)
+    >>> th19.get_image_size()
+    (1320, 770)
+
 
 Rendering pictures
 ------------------
@@ -255,9 +319,6 @@ Rendering pictures
 HTML tag including all responsive selections of a given image; for testing purposes, we have to
 register Pyramid's renderer:
 
-    >>> from pyramid_chameleon import zpt
-    >>> config.add_renderer('.pt', zpt.renderer_factory)
-
     >>> from zope.interface import Interface
     >>> from pyams_utils.interfaces.tales import ITALESExtension
     >>> from pyams_utils.adapter import ContextRequestAdapter
@@ -265,9 +326,13 @@ register Pyramid's renderer:
     >>> alsoProvides(view, Interface)
     >>> extension = config.registry.queryMultiAdapter((img, request, view), ITALESExtension, name='picture')
     >>> extension.render()
-    '<picture>...<source media="(max-width: 767px)"...srcset="http://example.com/content/++attr++img_data/++thumb++xs:w768?_=..." />...<source media="(max-width: 991px)"...srcset="http://example.com/content/++attr++img_data/++thumb++sm:w992?_=..." />...<source media="(max-width: 1199px)"...srcset="http://example.com/content/++attr++img_data/++thumb++md:w1200?_=..." />...<source media="(min-width: 1200px)"...srcset="http://example.com/content/++attr++img_data/++thumb++lg:w1600?_=..." />...<img style="width: 100%;" class=""... alt="" src="http://example.com/content/++attr++img_data/++thumb++md:w1200?_=..." />...</picture>\n'
+    '<picture>...<source media="(max-width: 575px)"...srcset="http://example.com/content/++attr++img_data/++thumb++xs:w576?_=..." />...<source media="(min-width: 576px)"...srcset="http://example.com/content/++attr++img_data/++thumb++sm:w768?_=..." />...<source media="(min-width: 768px)"...srcset="http://example.com/content/++attr++img_data/++thumb++md:w992?_=..." />...<source media="(min-width: 992px)"...srcset="http://example.com/content/++attr++img_data/++thumb++lg:w1200?_=..." />...<source media="(min-width: 1200px)"...srcset="http://example.com/content/++attr++img_data/++thumb++xl:w1600?_=..." />...<!-- fallback image -->...<img style="width: 100%;" class=""... alt="" src="http://example.com/content/++attr++img_data/++thumb++md:w1200?_=..." />...</picture>\n'
+
 
 Tests cleanup:
+
+    >>> IThumbnails(img).clear_thumbnails()
+    >>> IThumbnails(img3).clear_thumbnails()
 
     >>> from pyams_utils.registry import set_local_registry
     >>> set_local_registry(None)

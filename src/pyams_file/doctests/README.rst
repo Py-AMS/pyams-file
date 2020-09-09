@@ -40,6 +40,11 @@ ZEOStorage of RelStorage:
     Upgrading PyAMS catalog to generation 1...
     Upgrading PyAMS file to generation 3...
 
+    >>> from zope.annotation.interfaces import IAttributeAnnotatable
+    >>> from zope.dublincore.interfaces import IZopeDublinCore
+    >>> from zope.dublincore.annotatableadapter import ZDCAnnotatableAdapter
+    >>> config.registry.registerAdapter(ZDCAnnotatableAdapter, (IAttributeAnnotatable, ), IZopeDublinCore)
+
     >>> from zope.traversing.interfaces import BeforeTraverseEvent
     >>> from pyramid.threadlocal import manager
     >>> from pyams_utils.registry import handle_site_before_traverse
@@ -291,7 +296,7 @@ Pyramid context, the response body is closed automatically:
     >>> warnings.filterwarnings('ignore')
 
     >>> from pyams_file.skin.view import FileView
-    >>> request = DummyRequest(context=content.data, range=None)
+    >>> request = DummyRequest(context=content.data, range=None, if_modified_since=None)
     >>> response = FileView(request)
     >>> response.status
     '200 OK'
@@ -306,7 +311,8 @@ Pyramid context, the response body is closed automatically:
 You can also specify a request parameter to get a download of a file, instead of a link to a file
 that will be automatically displayed into a web browser:
 
-    >>> request = DummyRequest(context=content.data, params={'download': 1}, range=None)
+    >>> request = DummyRequest(context=content.data, params={'download': 1},
+    ...                        range=None, if_modified_since=None)
     >>> response = FileView(request)
     >>> response.status
     '200 OK'
@@ -316,12 +322,53 @@ that will be automatically displayed into a web browser:
 To get a file name, we have to set it into file properties:
 
     >>> content.data.filename = 'pyams-test.png'
-    >>> request = DummyRequest(context=content.data, params={'download': 1}, range=None)
+    >>> request = DummyRequest(context=content.data, params={'download': 1},
+    ...                        range=None, if_modified_since=None)
     >>> response = FileView(request)
     >>> response.status
     '200 OK'
     >>> response.content_disposition
     'attachment; filename="pyams-test.png"'
+
+File view also allows custom headers, like ranged requests or requests based on last modification
+date:
+
+    >>> from webob.byterange import Range
+    >>> request = DummyRequest(context=content.data, user_agent='Dummy',
+    ...                        range=Range(0, 100), if_modified_since=None)
+    >>> response = FileView(request)
+    >>> response.status
+    '206 Partial Content'
+    >>> response.content_length
+    100
+
+    >>> request = DummyRequest(context=content.data, user_agent='Dummy',
+    ...                        range=Range(12000, 13000), if_modified_since=None)
+    >>> response = FileView(request)
+    >>> response.status
+    '206 Partial Content'
+    >>> response.content_length
+    324
+
+    >>> from datetime import datetime, timedelta
+    >>> from pyams_utils.timezone import gmtime
+
+    >>> now = gmtime(datetime.now())
+    >>> request = DummyRequest(context=content.data,
+    ...                        range=None, if_modified_since=now)
+    >>> response = FileView(request)
+    >>> response.status
+    '200 OK'
+    >>> response.last_modified is None
+    True
+
+    >>> from zope.lifecycleevent import ObjectModifiedEvent
+    >>> config.registry.notify(ObjectModifiedEvent(content.data))
+    >>> IZopeDublinCore(content.data).modified = now - timedelta(days=1)
+
+    >>> response = FileView(request)
+    >>> response.status
+    '304 Not Modified'
 
 
 Deleting a file
