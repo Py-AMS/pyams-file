@@ -52,6 +52,25 @@ ZEOStorage of RelStorage:
     >>> manager.push({'request': request, 'registry': config.registry})
 
 
+Creating a file object from scratch
+-----------------------------------
+
+A File object can be created from a path or from a file object:
+
+    >>> from pyams_file.file import File
+
+    >>> img_name = os.path.join(sys.modules['pyams_file.tests'].__path__[0], 'test_image.png')
+
+    >>> with open(img_name, 'rb') as file:
+    ...     file1 = File(file)
+    >>> file1
+    <pyams_file.file.File object at 0x...>
+
+    >>> file2 = File(source=img_name)
+    >>> file2
+    <pyams_file.file.File object at 0x...>
+
+
 Blobs references manager
 ------------------------
 

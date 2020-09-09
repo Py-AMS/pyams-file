@@ -222,6 +222,27 @@ Standard selections can also be resized in a single operation:
     (128, 25)
 
 
+Using custom thumbnails geometries
+----------------------------------
+
+You can specify a custom geometry to use to create a thumbnail:
+
+    >>> from pyams_file.image import ThumbnailGeometry
+    >>> geometry = ThumbnailGeometry()
+    >>> geometry.x1 = 100
+    >>> geometry.y1 = 100
+    >>> geometry.x2 = 400
+    >>> geometry.y2 = 500
+    >>> geometry.is_empty()
+    False
+
+    >>> thumbs.clear_geometries()
+    >>> thumbs.set_geometry('lg', geometry)
+    >>> th16 = thumbs.get_thumbnail('lg')
+    >>> th16.get_image_size()
+    (300, 400)
+
+
 Rendering images
 ----------------
 
@@ -287,29 +308,29 @@ position in (x, y) above the original image, without scaling in this case.
     >>> alsoProvides(img3, IResponsiveImage)
 
     >>> thumbs = IThumbnails(img3)
-    >>> th16 = thumbs.get_thumbnail('xl', watermark=wtm_name)
-    >>> th16
+    >>> th17 = thumbs.get_thumbnail('xl', watermark=wtm_name)
+    >>> th17
     <pyams_file.file.ImageFile object at 0x...>
-    >>> th16.get_image_size()
+    >>> th17.get_image_size()
     (1320, 770)
 
 You can also specify custom watermarks positions:
 
     >>> thumbs.delete_thumbnail('xl')
-    >>> th17 = thumbs.get_thumbnail('xl', watermark=wtm_name, watermark_position='tile')
-    >>> th17.get_image_size()
+    >>> th18 = thumbs.get_thumbnail('xl', watermark=wtm_name, watermark_position='tile')
+    >>> th18.get_image_size()
     (1320, 770)
 
     >>> thumbs.delete_thumbnail('xl')
-    >>> th18 = thumbs.get_thumbnail('xl', watermark=wtm_name, watermark_position='scale')
-    >>> th18.get_image_size()
+    >>> th19 = thumbs.get_thumbnail('xl', watermark=wtm_name, watermark_position='scale')
+    >>> th19.get_image_size()
     (1320, 770)
 
 Watermark opacity can also be set:
 
     >>> thumbs.delete_thumbnail('xl')
-    >>> th19 = thumbs.get_thumbnail('xl', watermark=wtm_name, watermark_opacity=0.5)
-    >>> th19.get_image_size()
+    >>> th20 = thumbs.get_thumbnail('xl', watermark=wtm_name, watermark_opacity=0.5)
+    >>> th20.get_image_size()
     (1320, 770)
 
 
