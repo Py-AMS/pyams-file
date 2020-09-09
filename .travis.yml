@@ -4,6 +4,8 @@ python:
 - '3.6'
 - '3.7'
 - '3.8'
+before_install:
+- sudo apt-get -y install libmagic1
 install:
 - pip install coverage coveralls
 - python bootstrap.py
