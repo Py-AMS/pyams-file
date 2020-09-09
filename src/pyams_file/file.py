@@ -27,7 +27,7 @@ except ImportError:
 import os
 from io import BytesIO
 
-from BTrees.OOBTree import OOBTree  # pylint: disable=no-name-in-module
+from BTrees.OOBTree import OOBTree  # pylint: disable=import-error,no-name-in-module
 from PIL import Image
 from ZODB.blob import Blob
 from ZODB.utils import oid_repr
