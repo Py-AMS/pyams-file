@@ -273,10 +273,9 @@ class File(Persistent, Contained):
 
     def __enter__(self):
         """Context manager entry point"""
-        return self.get_blob(mode='c')
+        return self.get_blob(mode='r')
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # exc_val.value.close()
         pass
 
     def __iter__(self):
