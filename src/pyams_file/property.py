@@ -177,7 +177,7 @@ class I18nFileProperty:
                 if (old_lang_value is not _MARKER) and (old_lang_value is not None):
                     registry.notify(ObjectRemovedEvent(old_lang_value))
                 if new_lang_value is TO_BE_DELETED:
-                    if self.__name in instance.__dict__:
+                    if (self.__name in instance.__dict__) and (lang in old_value):
                         del old_value[lang]
                 else:
                     # set name of new value
