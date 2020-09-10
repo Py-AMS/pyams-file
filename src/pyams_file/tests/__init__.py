@@ -65,9 +65,11 @@ class MyContent(Persistent, Contained):
 class IMyI18nInterface(Interface):
     """Custom test interface with I18n field"""
     data = I18nFileField(title='File content', required=False)
+    required_data = I18nFileField(title='Alternate content', required=True)
 
 
 @implementer(IMyI18nInterface)
 class MyI18nContent(Persistent, Contained):
     """Custom content class with I18n property"""
     data = I18nFileProperty(IMyI18nInterface['data'])
+    required_data = I18nFileProperty(IMyI18nInterface['required_data'])
