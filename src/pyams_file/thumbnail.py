@@ -18,7 +18,6 @@ This module is used to generate images thumbnails.
 import logging
 import re
 
-import transaction
 from BTrees import OOBTree  # pylint: disable=no-name-in-module
 from persistent.dict import PersistentDict
 from pyramid.events import subscriber
@@ -31,7 +30,8 @@ from zope.traversing.interfaces import ITraversable
 
 from pyams_file.file import FileFactory
 from pyams_file.interfaces import IFileModifiedEvent, IImageFile, IMediaFile
-from pyams_file.interfaces.thumbnail import IThumbnailFile, IThumbnailer, IThumbnails, IWatermarker
+from pyams_file.interfaces.thumbnail import IThumbnailFile, IThumbnailer, IThumbnails, \
+    IWatermarker
 from pyams_utils.adapter import ContextAdapter, adapter_config, get_annotation_adapter
 from pyams_utils.registry import query_utility
 from pyams_utils.request import check_request
@@ -279,9 +279,6 @@ class ThumbnailTraverser(ContextAdapter):
             selection_name, thumbnail_name = thumbnail_name.split(':', 1)
             selection = thumbnails.get_selection(selection_name, format)
             if selection is not None:
-                transaction.commit()
                 thumbnails = IThumbnails(selection)
         # pylint: disable=assignment-from-no-return
-        result = thumbnails.get_thumbnail(thumbnail_name, format)
-        transaction.commit()
-        return result
+        return thumbnails.get_thumbnail(thumbnail_name, format)
