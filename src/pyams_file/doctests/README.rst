@@ -27,6 +27,8 @@ ZEOStorage of RelStorage:
     >>> include_site(config)
     >>> from pyams_i18n import includeme as include_i18n
     >>> include_i18n(config)
+    >>> from pyams_form import includeme as include_form
+    >>> include_form(config)
     >>> from pyams_catalog import includeme as include_catalog
     >>> include_catalog(config)
     >>> from pyams_file import includeme as include_file
@@ -159,18 +161,58 @@ You can also provide a file-like object to set a file property content:
     >>> with open(os.path.join(temp_dir, 'data.txt'), 'r+b') as file:
     ...     content.data = file
 
+And finally, we can set a file property using a tuple containing a filename and a file object:
+
+    >>> with open(os.path.join(temp_dir, 'data.txt'), 'r+b') as file:
+    ...     content.data = ('data.txt', file)
+
+Special values can be used to specify that a fil should be left unchanged or deleted:
+
+    >>> from pyams_utils.interfaces.form import NOT_CHANGED, TO_BE_DELETED
+
+    >>> other_content = MyContent()
+    >>> locate(other_content, app)
+    >>> with open(os.path.join(temp_dir, 'data.txt'), 'r+b') as file:
+    ...     other_content.data = file
+
+    >>> other_content_data = other_content.data
+    >>> other_content_data
+    <pyams_file.file.File object at 0x...>
+
+    >>> other_content.data = NOT_CHANGED
+    >>> other_content.data.data
+    b'This is my file content'
+    >>> other_content.data is other_content_data
+    True
+
+    >>> other_content.data = TO_BE_DELETED
+    >>> other_content.data is None
+    True
+
 
 Using a file as context manager
 -------------------------------
 
-Any File object can be used as a context manager, as a builtin *file* object; but as we changed
-file contents, transaction must be committed first:
+Any File object can be used as a context manager, as a builtin *file* object; but to prevent
+transactions problems (the transaction must be committed if you request a thumbnail just after
+creating an image), this access is restricted to read-only mode:
 
-    >>> transaction.commit()
     >>> with content.data as file:
     ...     print(file.read())
     ...     file.close()
     b'This is my file content'
+
+    >>> with content.data as file:
+    ...     try:
+    ...         file.write(b'This is a new content')
+    ...     finally:
+    ...         file.close()
+    Traceback (most recent call last):
+    ...
+    io.UnsupportedOperation: File not open for writing
+
+Please note also that it's up to you to close the file object, as the context manager doesn't
+keep a pointer to the opened file, to prevent ResourceWarning messages about unclosed files...
 
 
 Iterating over file content
@@ -236,6 +278,10 @@ I18n file properties are working exactly like normal I18n properties:
     {'en': <pyams_file.file.File object at 0x...>}
     >>> i18n_content.data['en'].data
     b'This is my I18n content'
+
+We can also set a value using a tuple made of filename and file object:
+
+    >>> i18n_content.data = {'en': ('test.txt', 'This is my I18n content')}
 
 
 Managing images
@@ -405,6 +451,32 @@ a special value called **TO_BE_DELETED**, defined by PyAMS_utils:
     >>> len(refs.refs)
     0
 
+Let's try now with another I18n required property:
+
+    >>> i18n_content.required_data = {}
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.RequiredMissing
+
+    >>> i18n_content.required_data = {'en': None}
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.WrongType: (None, ...)
+
+    >>> i18n_content.required_data = {'en': 'This is my I18n content'}
+    >>> i18n_content.required_data = {'en': NOT_CHANGED, 'fr': 'Contenu en Français'}
+    >>> i18n_content.required_data = {'en': TO_BE_DELETED}
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.RequiredMissing
+
+When using required property on I18n fields, the condition is accepted as soon as at least
+one language is filled:
+
+    >>> i18n_content.required_data = {'en': 'This is my I18n content', 'fr': TO_BE_DELETED}
+    >>> sorted(i18n_content.required_data.keys())
+    ['en']
+
 
 Removing unused blobs
 ---------------------
@@ -414,7 +486,7 @@ into our database, several blobs are still present on the filesystem:
 
     >>> transaction.commit()
     >>> len(list(find_files("*.blob", os.path.join(temp_dir, 'blobs'))))
-    8
+    14
 
 Why so many files? Because each time a File object is committed, even when using an history-free
 storage, a new blob file is stored on the filesystem; these files will be removed when using the

@@ -1,3 +1,4 @@
+================================
 PyAMS_file thumbnails management
 ================================
 
@@ -242,6 +243,12 @@ You can specify a custom geometry to use to create a thumbnail:
     >>> th16.get_image_size()
     (300, 400)
 
+    >>> thumbs.set_geometry('xl', geometry)
+    >>> transaction.commit()
+    >>> th17 = thumbs.get_thumbnail('xl:128x128')
+    >>> th17.get_image_size()
+    (96, 128)
+
 
 Rendering images
 ----------------
@@ -349,6 +356,30 @@ register Pyramid's renderer:
     >>> extension = config.registry.queryMultiAdapter((img, request, view), ITALESExtension, name='picture')
     >>> extension.render()
     '<picture>...<source media="(max-width: 575px)"...srcset="http://example.com/content/++attr++img_data/++thumb++xs:w576?_=..." />...<source media="(min-width: 576px)"...srcset="http://example.com/content/++attr++img_data/++thumb++sm:w768?_=..." />...<source media="(min-width: 768px)"...srcset="http://example.com/content/++attr++img_data/++thumb++md:w992?_=..." />...<source media="(min-width: 992px)"...srcset="http://example.com/content/++attr++img_data/++thumb++lg:w1200?_=..." />...<source media="(min-width: 1200px)"...srcset="http://example.com/content/++attr++img_data/++thumb++xl:w1600?_=..." />...<!-- fallback image -->...<img style="width: 100%;" class=""... alt="" src="http://example.com/content/++attr++img_data/++thumb++md:w1200?_=..." />...</picture>\n'
+
+
+Using thumbnails traverser
+--------------------------
+
+As you can see in previous chapter, generated thumbnails URLs include a "++thumb++" traverser,
+which allows to access a given thumbnail from an URL:
+
+    >>> from zope.traversing.interfaces import ITraversable
+    >>> from pyams_file.interfaces import IImageFile
+    >>> from pyams_file.thumbnail import ThumbnailTraverser
+    >>> config.registry.registerAdapter(ThumbnailTraverser, (IImageFile,), ITraversable,
+    ...                                 name='thumb')
+
+    >>> transaction.commit()
+    >>> traverser = config.registry.getAdapter(img, ITraversable, name='thumb')
+    >>> th21 = traverser.traverse('md:w600')
+    >>> th21
+    <pyams_file.file.ImageFile object at 0x...>
+    >>> th21.get_image_size()
+    (535, 166)
+
+You can see here that the returned image can be of lower resolution than what was requested; this
+is the case when the source image has a lower resolution than was is requested!
 
 
 Tests cleanup:
