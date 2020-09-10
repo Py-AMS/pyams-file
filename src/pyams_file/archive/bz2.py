@@ -17,6 +17,7 @@ Bzip2 extraction module.
 
 import bz2
 
+from pyams_file.archive import ArchiveExtractorBase
 from pyams_file.archive.tar import TarArchiveExtractor
 from pyams_file.file import get_magic_content_type
 from pyams_file.interfaces.archive import IArchiveExtractor
@@ -30,37 +31,26 @@ CHUNK_SIZE = 4096
 
 
 @utility_config(name='application/x-bzip2', provides=IArchiveExtractor)
-class BZip2ArchiveExtractor:
+class BZip2ArchiveExtractor(ArchiveExtractorBase):
     """BZip2 file format archive extractor"""
 
-    data = None
-    bz2 = None
-
-    def initialize(self, data):
+    def _initialize(self, data, mode='r'):
         """Initialize extractor"""
-        if isinstance(data, tuple):
-            data = data[0]
-        self.data = data
-        self.bz2 = bz2.BZ2Decompressor()
+        data = super(BZip2ArchiveExtractor, self)._initialize(data, mode)
+        return data, bz2.BZ2Decompressor()
 
-    def get_contents(self):
+    def get_contents(self, data, mode='r'):
         """Extract archive contents"""
-        position = 0
-        compressed = self.data[position:position + CHUNK_SIZE]
-        decompressed = self.bz2.decompress(compressed)
-        while (not decompressed) and (position < len(self.data)):
-            compressed = self.data[position:position + CHUNK_SIZE]
-            decompressed = self.bz2.decompress(compressed)
-            position += CHUNK_SIZE
+        data, extractor = self._initialize(data, mode)
+        decompressed = extractor.decompress(data.read(CHUNK_SIZE))
+        while not decompressed:
+            decompressed = extractor.decompress(data.read(CHUNK_SIZE))
         mime_type = get_magic_content_type(decompressed[:CHUNK_SIZE])
         if mime_type == 'application/x-tar':
             tar = TarArchiveExtractor()
-            tar.initialize(self.data, mode='r:bz2')
-            for element in tar.get_contents():
-                yield element
+            data.seek(0)
+            yield from tar.get_contents(data, 'r:bz2')
         else:
-            while position < len(self.data):
-                compressed = self.data[position:position + CHUNK_SIZE]
-                decompressed += self.bz2.decompress(compressed)
-                position += CHUNK_SIZE
-            yield (decompressed, '')
+            while extractor.needs_input:
+                decompressed += extractor.decompress(data.read(CHUNK_SIZE))
+            yield decompressed, ''

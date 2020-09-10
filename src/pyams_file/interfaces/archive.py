@@ -24,10 +24,7 @@ __docformat__ = 'restructuredtext'
 class IArchiveExtractor(Interface):
     """Archive contents extractor"""
 
-    def initialize(self, data, mode='r'):
-        """Initialize extractor for given data"""
-
-    def get_contents(self):
+    def get_contents(self, data, mode='r'):
         """Get iterator over archive contents
 
         Each iteration is a tuple containing data and file name.

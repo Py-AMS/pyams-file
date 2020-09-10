@@ -16,8 +16,8 @@ TAR files extraction module.
 """
 
 import tarfile
-from io import BytesIO
 
+from pyams_file.archive import ArchiveExtractorBase
 from pyams_file.file import get_magic_content_type
 from pyams_file.interfaces.archive import IArchiveExtractor
 from pyams_utils.registry import query_utility, utility_config
@@ -26,35 +26,32 @@ from pyams_utils.registry import query_utility, utility_config
 __docformat__ = 'restructuredtext'
 
 
+CHUNK_SIZE = 4096
+
+
 @utility_config(name='application/x-tar', provides=IArchiveExtractor)
-class TarArchiveExtractor:
+class TarArchiveExtractor(ArchiveExtractorBase):
     """TAR file format archive extractor"""
 
-    tar = None
-
-    def initialize(self, data, mode='r'):
+    def _initialize(self, data, mode='r'):
         """Initialize extractor"""
-        if isinstance(data, tuple):
-            data = data[0]
-        if not hasattr(data, 'read'):
-            data = BytesIO(data)
-        self.tar = tarfile.open(fileobj=data, mode=mode)
+        data = super(TarArchiveExtractor, self)._initialize(data, mode)
+        return data, tarfile.open(fileobj=data, mode=mode)
 
-    def get_contents(self):
+    def get_contents(self, data, mode='r'):
         """Extract archive contents"""
-        members = self.tar.getmembers()
+        data, extractor = self._initialize(data, mode)
+        members = extractor.getmembers()
         for member in members:
             filename = member.name
-            content = self.tar.extractfile(member)
+            content = extractor.extractfile(member)
             if content is not None:
                 content = content.read()
             if not content:
                 continue
-            mime_type = get_magic_content_type(content[:4096])
-            extractor = query_utility(IArchiveExtractor, name=mime_type)
-            if extractor is not None:
-                extractor.initialize(content)
-                for element in extractor.get_contents():
-                    yield element
+            mime_type = get_magic_content_type(content[:CHUNK_SIZE])
+            archiver = query_utility(IArchiveExtractor, name=mime_type)
+            if archiver is not None:
+                yield from archiver.get_contents(content)
             else:
-                yield (content, filename)
+                yield content, filename
