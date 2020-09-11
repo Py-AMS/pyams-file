@@ -16,14 +16,16 @@ This module defines files properties which can be used to automatically handle a
 behind external files management; this includes blobs management and their references counting.
 """
 
+from pyramid.events import subscriber
 from pyramid.threadlocal import get_current_registry
 from zope.interface import alsoProvides
-from zope.lifecycleevent import ObjectAddedEvent, ObjectCreatedEvent, ObjectRemovedEvent
+from zope.lifecycleevent import IObjectRemovedEvent, ObjectAddedEvent, ObjectCreatedEvent, \
+    ObjectRemovedEvent
 from zope.location import locate
 from zope.schema.interfaces import IField
 
 from pyams_file.file import FileFactory
-from pyams_file.interfaces import IFile, IFileFieldContainer, IFileInfo
+from pyams_file.interfaces import FILE_CONTAINER_ATTRIBUTES, IFile, IFileFieldContainer, IFileInfo
 from pyams_utils.adapter import get_annotation_adapter
 from pyams_utils.interfaces.form import NOT_CHANGED, TO_BE_DELETED
 
@@ -31,9 +33,13 @@ from pyams_utils.interfaces.form import NOT_CHANGED, TO_BE_DELETED
 __docformat__ = 'restructuredtext'
 
 
-FILE_CONTAINER_ATTRIBUTES = 'pyams_file.file.attributes'
-
 _MARKER = object()
+
+
+def get_instance_attributes(instance):
+    """Get file attributes of given instance"""
+    return get_annotation_adapter(instance, FILE_CONTAINER_ATTRIBUTES, set,
+                                  notify=False, locate=False)
 
 
 class FileProperty:
@@ -95,6 +101,9 @@ class FileProperty:
             if value is TO_BE_DELETED:
                 if self.__name in instance.__dict__:
                     del instance.__dict__[self.__name]
+                attributes = get_instance_attributes(instance)
+                if attributes and (self.__name in attributes):
+                    attributes.remove(self.__name)
             else:
                 # set name of new value
                 name = '++attr++{0}'.format(self.__name)
@@ -104,10 +113,19 @@ class FileProperty:
                 # store file attributes of instance
                 if not IFileFieldContainer.providedBy(instance):
                     alsoProvides(instance, IFileFieldContainer)
-                attributes = get_annotation_adapter(instance, FILE_CONTAINER_ATTRIBUTES, set,
-                                                    notify=False, locate=False)
+                attributes = get_instance_attributes(instance)
                 attributes.add(self.__name)
                 registry.notify(ObjectAddedEvent(value, instance, name))
+
+    def __delete__(self, instance):
+        old_value = instance.__dict__.get(self.__name, _MARKER)
+        if (old_value is not _MARKER) and (old_value is not None):
+            registry = get_current_registry()
+            registry.notify(ObjectRemovedEvent(old_value))
+        attributes = get_instance_attributes(instance)
+        if attributes and (self.__name in attributes):
+            attributes.remove(self.__name)
+        del instance.__dict__[self.__name]
 
 
 class I18nFileProperty:
@@ -176,9 +194,13 @@ class I18nFileProperty:
                 old_lang_value = old_value.get(lang, _MARKER)
                 if (old_lang_value is not _MARKER) and (old_lang_value is not None):
                     registry.notify(ObjectRemovedEvent(old_lang_value))
+                attrname = '{0}::{1}'.format(self.__name, lang)
                 if new_lang_value is TO_BE_DELETED:
                     if (self.__name in instance.__dict__) and (lang in old_value):
                         del old_value[lang]
+                    attributes = get_instance_attributes(instance)
+                    if attributes and (attrname in attributes):
+                        attributes.remove(attrname)
                 else:
                     # set name of new value
                     name = '++i18n++{0}:{1}'.format(self.__name, lang)
@@ -188,8 +210,33 @@ class I18nFileProperty:
                     # store file attributes of instance
                     if not IFileFieldContainer.providedBy(instance):
                         alsoProvides(instance, IFileFieldContainer)
-                    attributes = get_annotation_adapter(instance, FILE_CONTAINER_ATTRIBUTES, set,
-                                                        notify=False, locate=False)
-                    attributes.add('{0}::{1}'.format(self.__name, lang))
+                    attributes = get_instance_attributes(instance)
+                    attributes.add(attrname)
                     registry.notify(ObjectAddedEvent(new_lang_value, instance, name))
-                instance.__dict__[self.__name] = old_value
+            instance.__dict__[self.__name] = old_value
+
+    def __delete__(self, instance):
+        attributes = get_instance_attributes(instance)
+        old_value = instance.__dict__.get(self.__name, _MARKER)
+        if (old_value is not _MARKER) and (old_value is not None):
+            registry = get_current_registry()
+            for lang in list(old_value):
+                old_lang_value = old_value.get(lang, _MARKER)
+                if (old_lang_value is not _MARKER) and (old_lang_value is not None):
+                    registry.notify(ObjectRemovedEvent(old_lang_value))
+                    del old_value[lang]
+                attrname = '{0}::{1}'.format(self.__name, lang)
+                if attributes and (attrname in attributes):
+                    attributes.remove(attrname)
+        del instance.__dict__[self.__name]
+
+
+@subscriber(IObjectRemovedEvent, context_selector=IFileFieldContainer)
+def handle_removed_file_container(event):
+    """Handle removal of files containers"""
+    instance = event.object
+    attributes = get_instance_attributes(instance)
+    for attr in attributes.copy():
+        if '::' in attr:
+            attr, lang = attr.split('::')
+        delattr(instance, attr)
