@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.2.2
+-----
+ - updated tests for correct execution in Travis
+
 1.2.1
 -----
  - Pylint code cleanup and improved tests
