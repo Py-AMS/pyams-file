@@ -303,6 +303,13 @@ pixels, but you can specify your own unit:
 Note: *render_image* function can render bitmap images as well as SVG images; we only use the
 *render_svg* function here for testing purpose:
 
+Because of possible libmagic behaviour in Travis-CI, we wake sure that SVG interface is
+provided by the SVG image:
+
+    >>> from pyams_file.interfaces import ISVGImageFile
+    >>> if not ISVGImageFile.providedBy(img2):
+    ...     alsoProvides(img2, ISVGImageFile)
+
     >>> render_image(img2, width=128, height='3rem')
     '<div class=" display-inline align-middle svg-container"... style="width: 128px; height: 3rem;">...<svg xmlns="..." viewBox="..."><path d="..." fill="#fff"/></svg>\n</div>\n'
 
