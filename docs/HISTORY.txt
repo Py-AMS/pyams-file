@@ -1,6 +1,16 @@
 Changelog
 =========
 
+1.2.0
+-----
+ - changed File blob's mode in context manager to readonly
+ - removed intermediate commits in thumbnails traverser
+ - updated file properties to be able to remove an attribute and unreference files objects
+   accordingly
+ - added subscriber to correctly remove all referenced files when a parent object is removed
+ - refactored archives extraction utilities
+ - improved tests and coverage
+
 1.1.2
 -----
  - updated Travis authentication token
