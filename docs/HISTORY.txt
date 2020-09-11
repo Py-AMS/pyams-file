@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.2.1
+-----
+ - Pylint code cleanup and improved tests
+
 1.2.0
 -----
  - changed File blob's mode in context manager to readonly
