@@ -23,7 +23,10 @@ from zope.container.contained import Contained
 from zope.interface import Interface, implementer
 
 from pyams_file.property import FileProperty, I18nFileProperty
-from pyams_file.schema import FileField, I18nFileField, ImageField
+from pyams_file.schema import FileField, I18nAudioField, I18nFileField, I18nImageField, \
+    I18nMediaField, \
+    I18nThumbnailImageField, I18nThumbnailMediaField, I18nThumbnailVideoField, I18nVideoField, \
+    ImageField
 
 
 __docformat__ = 'restructuredtext'
@@ -56,6 +59,7 @@ class IMyInterface(Interface):
     required_data = FileField(title='Required field', required=True)
 
 
+
 @implementer(IMyInterface)
 class MyContent(Persistent, Contained):
     """Custom content class"""
@@ -68,6 +72,13 @@ class IMyI18nInterface(Interface):
     """Custom test interface with I18n field"""
     data = I18nFileField(title='File content', required=False)
     required_data = I18nFileField(title='Alternate content', required=True)
+    media = I18nMediaField(title='Media field', required=False)
+    thmedia = I18nThumbnailMediaField(title='Thumbnail media', required=False)
+    image = I18nImageField(title='Image', required=False)
+    thimage = I18nThumbnailImageField(title='Thumbnail image', required=False)
+    video = I18nVideoField(title='Video', required=False)
+    thvideo = I18nThumbnailVideoField(title='Thumbnail video', required=False)
+    audio = I18nAudioField(title='Audio', required=False)
 
 
 @implementer(IMyI18nInterface)

@@ -125,6 +125,25 @@ File fields value can also be provided as a tuple containing filename and a file
     >>> value = ('test.txt', StringIO(source))
     >>> IMyInterface['data'].validate(value)
 
+    >>> IMyInterface['data'].validate((123, StringIO(source)))
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.WrongType: (123, <class 'str'>, 'data.filename')
+
+
+Finally, let's try to validate special values:
+
+    >>> from pyams_utils.interfaces.form import NOT_CHANGED, TO_BE_DELETED
+
+    >>> IMyInterface['data'].validate(NOT_CHANGED)
+    >>> IMyInterface['data'].validate(TO_BE_DELETED)
+
+    >>> IMyInterface['required_data'].validate(NOT_CHANGED)
+    >>> IMyInterface['required_data'].validate(TO_BE_DELETED)
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.RequiredMissing
+
 
 Let's now use properties fields; a File content can be set from a simple string:
 
@@ -194,8 +213,6 @@ And finally, we can set a file property using a tuple containing a filename and 
     ...     content.data = ('data.txt', file)
 
 Special values can be used to specify that a fil should be left unchanged or deleted:
-
-    >>> from pyams_utils.interfaces.form import NOT_CHANGED, TO_BE_DELETED
 
     >>> other_content = MyContent()
     >>> locate(other_content, app)
@@ -314,6 +331,12 @@ I18n file properties are working exactly like normal I18n properties:
     >>> IMyI18nInterface['data'].validate(value)
     >>> IMyI18nInterface['required_data'].validate(value)
 
+    >>> value2 = {'en': (123, value)}
+    >>> IMyI18nInterface['data'].validate(value2)
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.WrongType: (123, <class 'str'>, 'data.filename')
+
     >>> value = {'en': ('test.txt', value)}
     >>> IMyI18nInterface['data'].validate(value)
     Traceback (most recent call last):
@@ -397,7 +420,6 @@ unchanged:
     30391
     >>> content.data.get_image_size()
     (500, 155)
-
 
 We can also rotate image, or crop on a given selection:
 

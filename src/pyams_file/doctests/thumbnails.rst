@@ -262,6 +262,16 @@ PyAMS_file provides a few helpers to include an image tag into an HTML template:
     >>> render_image(th15, request=request)
     '<img src="http://example.com/content/++attr++img_data/++thumb++banner:535x106.png/++thumb++128x25.png" class="" alt="" />'
 
+Other arguments are available when rendering images:
+
+    >>> render_image(img, height=128, request=request)
+    '<img src="http://example.com/content/++attr++img_data/++thumb++412x128.png" class="" alt="" />'
+    >>> render_image(img, width=128, height=128, request=request)
+    '<img src="http://example.com/content/++attr++img_data/++thumb++128x39.jpeg" class="" alt="" />'
+    >>> render_image(img, width=128, css_class='my-image', timestamp=True, request=request)
+    '<div class="my-image"><img src="http://example.com/content/++attr++img_data/++thumb++128x39.jpeg?_=..." class="" alt="" /></div>'
+
+
 You can also render SVG images using this function:
 
     >>> from pyramid_chameleon import zpt
@@ -284,8 +294,17 @@ You can also provide an alternate text and a custom CSS class:
     >>> render_svg(img2, css_class='my-wrapper', img_class='my-picture', alt='My icon')
     '<div class="my-wrapper display-inline align-middle svg-container"...>...<svg xmlns="..." viewBox="..." class="my-picture"><g><title>My icon</title><path d="..." fill="#fff"></path></g></svg>\n</div>\n'
 
+You can also specify width and/or height when rendering an SVG file; default units are given in
+pixels, but you can specify your own unit:
+
+    >>> render_svg(img2, width=128, height='3rem')
+    '<div class=" display-inline align-middle svg-container"... style="width: 128px; height: 3rem;">...<svg xmlns="..." viewBox="..."><path d="..." fill="#fff"/></svg>\n</div>\n'
+
 Note: *render_image* function can render bitmap images as well as SVG images; we only use the
 *render_svg* function here for testing purpose:
+
+    >>> render_image(img2, width=128, height='3rem')
+    '<div class=" display-inline align-middle svg-container"... style="width: 128px; height: 3rem;">...<svg xmlns="..." viewBox="..."><path d="..." fill="#fff"/></svg>\n</div>\n'
 
 
 Watermarking
