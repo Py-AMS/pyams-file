@@ -290,7 +290,7 @@ class File(Persistent, Contained):
                     return
                 yield chunk
 
-    def __nonzero__(self):
+    def __bool__(self):
         """Non-zero test against blob size"""
         return self._size > 0
 
