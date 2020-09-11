@@ -173,13 +173,16 @@ class I18nFileField(I18nField):
             for lang, lang_value in value.items():
                 # check for NOT_CHANGED value
                 if lang_value is NOT_CHANGED:  # check for empty file value
-                    adapter = registry.getMultiAdapter((self.context, self), IDataManager)
-                    try:
-                        old_value = adapter.query() or {}
-                    except TypeError:  # can't adapt field context => new content?
-                        old_value = None
-                    else:
-                        old_value = old_value.get(lang)
+                    adapter = registry.queryMultiAdapter((self.context, self), IDataManager)
+                    if adapter is not None:
+                        try:
+                            old_value = adapter.query() or {}
+                        except TypeError:  # can't adapt field context => new content?
+                            old_value = None
+                        else:
+                            old_value = old_value.get(lang)
+                    else:  # default data manager
+                        old_value = getattr(self.context, self.__name__, {}).get(lang)
                     has_value = has_value or bool(old_value)
                     if has_value:
                         break
