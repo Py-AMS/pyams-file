@@ -27,8 +27,6 @@ ZEOStorage of RelStorage:
     >>> include_site(config)
     >>> from pyams_i18n import includeme as include_i18n
     >>> include_i18n(config)
-    >>> from pyams_form import includeme as include_form
-    >>> include_form(config)
     >>> from pyams_catalog import includeme as include_catalog
     >>> include_catalog(config)
     >>> from pyams_file import includeme as include_file
@@ -100,9 +98,35 @@ Defining file schema fields and properties
 Doctests defined classes can't be persisted, so we use testing classes defined into
 PyAMS_file.tests:
 
-    >>> from pyams_file.tests import MyContent
+    >>> from pyams_file.tests import IMyInterface, MyContent
 
-File content can be set from a simple string:
+File schema fields provide validation methods:
+
+    >>> source = 'This is my file content'
+    >>> IMyInterface['data'].validate(source)
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.WrongType: ('This is my file content', <InterfaceClass pyams_file.interfaces.IFile>, 'data')
+
+Yes... A file fields requires... a File object!
+
+    >>> value = File(source)
+    >>> IMyInterface['data'].validate(value)
+
+File fields value can also be provided as a tuple containing filename and a file-like object:
+
+    >>> value = ('test.txt', File(source))
+    >>> IMyInterface['data'].validate(value)
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.WrongType: (<pyams_file.file.File object at 0x...>, '<file-like object>', 'data')
+
+    >>> from io import StringIO
+    >>> value = ('test.txt', StringIO(source))
+    >>> IMyInterface['data'].validate(value)
+
+
+Let's now use properties fields; a File content can be set from a simple string:
 
     >>> content = MyContent()
     >>> content.data = 'This is my file content'
@@ -123,6 +147,9 @@ database reference before being able to set their content:
     True
     >>> content.data.__name__
     '++attr++data'
+
+The boolean value of a File object is based on the size of it's content:
+
     >>> bool(content.data)
     True
 
@@ -269,7 +296,57 @@ I18n files properties
 
 I18n file properties are working exactly like normal I18n properties:
 
-    >>> from pyams_file.tests import MyI18nContent
+    >>> from pyams_file.tests import IMyI18nInterface, MyI18nContent
+
+    >>> source = 'This is my test'
+    >>> value = {'en': source}
+    >>> IMyI18nInterface['data'].validate(value)
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.WrongType: ('This is my test', <InterfaceClass pyams_file.interfaces.IFile>, 'data')
+
+    >>> IMyI18nInterface['required_data'].validate(value)
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.WrongType: ('This is my test', <InterfaceClass pyams_file.interfaces.IFile>, 'required_data')
+
+    >>> value = {'en': File(source)}
+    >>> IMyI18nInterface['data'].validate(value)
+    >>> IMyI18nInterface['required_data'].validate(value)
+
+    >>> value = {'en': ('test.txt', value)}
+    >>> IMyI18nInterface['data'].validate(value)
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.WrongType: ({'en': <pyams_file.file.File object at 0x...>}, '<file-like object>', 'data')
+
+    >>> IMyI18nInterface['required_data'].validate(value)
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.WrongType: ({'en': <pyams_file.file.File object at 0x...>}, '<file-like object>', 'required_data')
+
+    >>> value = {'en': ('test.txt', StringIO(source))}
+    >>> IMyI18nInterface['data'].validate(value)
+    >>> IMyI18nInterface['required_data'].validate(value)
+
+    >>> value = {'en': NOT_CHANGED}
+    >>> IMyI18nInterface['data'].validate(value)
+    >>> IMyI18nInterface['required_data'].validate(value)
+    Traceback (most recent call last):
+    ...
+    zope.schema._bootstrapinterfaces.RequiredMissing
+
+This last error is raised because field is not bound to any context; we have to create a context
+and bind it's field to it:
+
+    >>> i18n_content = MyI18nContent()
+    >>> locate(i18n_content, app)
+    >>> i18n_content.required_data = {'en': File(source)}
+    >>> field = IMyI18nInterface['required_data'].bind(i18n_content)
+    >>> field.validate(value)
+
+
+Let's now use our I18n fields properties:
 
     >>> i18n_content = MyI18nContent()
     >>> locate(i18n_content, app)
@@ -306,12 +383,21 @@ As we can see, the image has automatically been recognized as such:
 
 We now have a few helpers to manipulate images; let's commit first:
 
-    >>> transaction.commit()
     >>> content.data.resize(500, 500, keep_ratio=True)
     >>> content.data.get_size()
     30391
     >>> content.data.get_image_size()
     (500, 155)
+
+Resizing an image to higher resolution than original image just leaves the original image
+unchanged:
+
+    >>> content.data.resize(1000, 1000, keep_ratio=True)
+    >>> content.data.get_size()
+    30391
+    >>> content.data.get_image_size()
+    (500, 155)
+
 
 We can also rotate image, or crop on a given selection:
 
@@ -443,13 +529,15 @@ Two options are available to delete a file (if it's not required!): the first on
 assign a null value to the given property; but to be able to delete a file from a form, there is
 a special value called **TO_BE_DELETED**, defined by PyAMS_utils:
 
+    >>> len(refs.refs)
+    3
     >>> from pyams_utils.interfaces.form import TO_BE_DELETED
     >>> content.data = TO_BE_DELETED
     >>> content.data is None
     True
     >>> i18n_content.data = {'en': TO_BE_DELETED}
     >>> len(refs.refs)
-    0
+    1
 
 Let's try now with another I18n required property:
 
@@ -478,6 +566,110 @@ one language is filled:
     ['en']
 
 
+Deleting files container
+------------------------
+
+When files are added to an object with properties, an *IFileFieldContainer* marker interface
+is added to this object, and an annotation is added to store the name of attributes containing
+files; an event subscriber is associated to removal of objects containing files so that the
+references to their blobs are correctly removed.
+
+Let's remove some files:
+
+    >>> from pyams_utils.adapter import get_annotation_adapter
+    >>> from pyams_file.property import FILE_CONTAINER_ATTRIBUTES
+    >>> from pyams_file.interfaces import IFileFieldContainer
+
+    >>> len(refs.refs)
+    2
+
+    >>> content = MyContent()
+    >>> locate(content, app)
+    >>> with open(os.path.join(temp_dir, 'data.txt'), 'r+b') as file:
+    ...     content.data = file
+    ...     content.required_data = file
+
+    >>> len(refs.refs)
+    4
+
+    >>> IFileFieldContainer.providedBy(content)
+    True
+    >>> attributes = get_annotation_adapter(content, FILE_CONTAINER_ATTRIBUTES, set,
+    ...                                     notify=False, locate=False)
+    >>> sorted(attributes)
+    ['data', 'required_data']
+    >>> del content.data
+    >>> sorted(attributes)
+    ['required_data']
+
+You can't delete a property which doesn't exists anymore:
+
+    >>> content.data is None
+    True
+    >>> del content.data
+    Traceback (most recent call last):
+    ...
+    KeyError: 'data'
+
+    >>> del content.required_data
+    >>> sorted(attributes)
+    []
+    >>> content.required_data is None
+    True
+    >>> del content.required_data
+    Traceback (most recent call last):
+    ...
+    KeyError: 'required_data'
+
+    >>> len(refs.refs)
+    2
+
+    >>> IFileFieldContainer.providedBy(i18n_content)
+    True
+    >>> attributes = get_annotation_adapter(i18n_content, FILE_CONTAINER_ATTRIBUTES, set,
+    ...                                     notify=False, locate=False)
+    >>> sorted(attributes)
+    ['required_data::en']
+    >>> del i18n_content.data
+    >>> i18n_content.data is None
+    True
+    >>> del i18n_content.data
+    Traceback (most recent call last):
+    ...
+    KeyError: 'data'
+
+    >>> del i18n_content.required_data
+    >>> sorted(attributes)
+    []
+    >>> i18n_content.required_data is None
+    True
+
+    >>> len(refs.refs)
+    1
+
+Deleting the whole property is also the only way to remove a whole value on a required attribute!
+
+Notifying object destruction will also trigger removal of blobs references:
+
+    >>> content = MyContent()
+    >>> locate(content, app)
+    >>> with open(os.path.join(temp_dir, 'data.txt'), 'r+b') as file:
+    ...     content.data = file
+
+    >>> len(refs.refs)
+    2
+
+    >>> transaction.commit()
+
+    >>> from zope.lifecycleevent import ObjectRemovedEvent
+
+    >>> content.__parent__ = None
+    >>> config.registry.notify(ObjectRemovedEvent(content))
+
+    >>> len(refs.refs)
+    1
+
+
 Removing unused blobs
 ---------------------
 
@@ -486,7 +678,7 @@ into our database, several blobs are still present on the filesystem:
 
     >>> transaction.commit()
     >>> len(list(find_files("*.blob", os.path.join(temp_dir, 'blobs'))))
-    14
+    18
 
 Why so many files? Because each time a File object is committed, even when using an history-free
 storage, a new blob file is stored on the filesystem; these files will be removed when using the

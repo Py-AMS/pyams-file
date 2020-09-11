@@ -53,6 +53,7 @@ class IMyInterface(Interface):
     """Custom test interface"""
     data = FileField(title='File content', required=False)
     img_data = ImageField(title='Image content', required=False)
+    required_data = FileField(title='Required field', required=True)
 
 
 @implementer(IMyInterface)
@@ -60,6 +61,7 @@ class MyContent(Persistent, Contained):
     """Custom content class"""
     data = FileProperty(IMyInterface['data'])
     img_data = FileProperty(IMyInterface['img_data'])
+    required_data = FileProperty(IMyInterface['required_data'])
 
 
 class IMyI18nInterface(Interface):

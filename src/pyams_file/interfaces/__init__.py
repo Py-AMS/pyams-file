@@ -153,3 +153,6 @@ class IFileInfo(Interface):
 
 class IFileFieldContainer(IAttributeAnnotatable):
     """Marker interface for contents holding file properties"""
+
+
+FILE_CONTAINER_ATTRIBUTES = 'pyams_file.file.attributes'
