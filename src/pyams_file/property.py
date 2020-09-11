@@ -152,7 +152,8 @@ class I18nFileProperty:
                 raise AttributeError(self.__name)
         return value
 
-    def __set__(self, instance, value):  # pylint: disable=too-many-locals,too-many-branches
+    def __set__(self, instance, value):
+        # pylint: disable=too-many-locals,too-many-statements,too-many-branches
         registry = get_current_registry()
         for lang in value:
             lang_value = value[lang]
@@ -238,5 +239,5 @@ def handle_removed_file_container(event):
     attributes = get_instance_attributes(instance)
     for attr in attributes.copy():
         if '::' in attr:
-            attr, lang = attr.split('::')
+            attr, lang = attr.split('::')  # pylint:disable=unused-variable
         delattr(instance, attr)

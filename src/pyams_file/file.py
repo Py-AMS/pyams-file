@@ -276,7 +276,11 @@ class File(Persistent, Contained):
         return self.get_blob(mode='r')
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        """Context manager exit point
+
+        We don't close the blob here.
+        It's up to the context manager call to close it!
+        """
 
     def __iter__(self):
         """Iterator over blob content to read by chunks"""
