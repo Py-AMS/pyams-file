@@ -7,7 +7,7 @@ PyAMS_file package offers a few helpers to use archives files and extract their 
     >>> from pyramid.testing import setUp, tearDown, DummyRequest
     >>> import os, sys
 
-    >>> config = setUp()
+    >>> config = setUp(hook_zca=True)
 
     >>> from pyams_utils import includeme as include_utils
     >>> include_utils(config)

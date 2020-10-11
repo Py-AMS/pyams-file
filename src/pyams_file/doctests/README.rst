@@ -14,7 +14,7 @@ This package is composed of a set of utility functions, usable into any Pyramid 
 Blos storage requires a blobs storage directory, which can only be used with a FileStorage,
 ZEOStorage of RelStorage:
 
-    >>> config = setUp()
+    >>> config = setUp(hook_zca=True)
     >>> config.registry.settings['zodbconn.uri'] = 'file://{dir}/Data.fs?blobstorage_dir={dir}/blobs'.format(
     ...     dir=temp_dir)
 
