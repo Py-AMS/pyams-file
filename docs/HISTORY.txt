@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.2.4
+-----
+ - updated doctests
+
 1.2.3
 -----
  - updated tests with ZCA hook
