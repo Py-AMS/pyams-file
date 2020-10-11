@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.2.3
+-----
+ - updated tests with ZCA hook
+
 1.2.2
 -----
  - updated tests for correct execution in Travis
