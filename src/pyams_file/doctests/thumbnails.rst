@@ -383,20 +383,12 @@ register Pyramid's renderer:
     >>> extension.render()
     '<picture>...<source media="(max-width: 575px)"...srcset="http://example.com/content/++attr++img_data/++thumb++xs:w576?_=..." />...<source media="(min-width: 576px)"...srcset="http://example.com/content/++attr++img_data/++thumb++sm:w768?_=..." />...<source media="(min-width: 768px)"...srcset="http://example.com/content/++attr++img_data/++thumb++md:w992?_=..." />...<source media="(min-width: 992px)"...srcset="http://example.com/content/++attr++img_data/++thumb++lg:w1200?_=..." />...<source media="(min-width: 1200px)"...srcset="http://example.com/content/++attr++img_data/++thumb++xl:w1600?_=..." />...<!-- fallback image -->...<img style="width: 100%;" class=""... alt="" src="http://example.com/content/++attr++img_data/++thumb++md:w1200?_=..." />...</picture>\n'
 
-    >>> extension = config.registry.queryMultiAdapter((img2, request, view), ITALESExtension, name='picture')
-    >>> extension.render()
-    '<picture...class="">...<!-- fallback image -->...<img style="width: 100%;"... alt="" src="http://example.com/content-2/++attr++data?_=..." />\n</picture>\n'
-
 "thumbnail" is another TALES extension, which is used to render an image thumbnail of a source
 image:
 
     >>> extension = config.registry.queryMultiAdapter((img, request, view), ITALESExtension, name='thumbnail')
     >>> extension.render()
     '<img src="http://example.com/content/++attr++img_data?_=..." class="" alt="" />'
-
-    >>> extension = config.registry.queryMultiAdapter((img2, request, view), ITALESExtension, name='thumbnail')
-    >>> extension.render()
-    '<div class=" display-inline align-middle svg-container"\n\t style="">\n\t<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 85 85"><path d="..." fill="#fff"/></svg>\n</div>\n'
 
 
 Using thumbnails traverser
