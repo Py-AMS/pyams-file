@@ -311,7 +311,7 @@ def handle_removed_file(event):
     event.object.remove_blob_reference()
 
 
-@adapter_config(context=IFile, provides=ICopyHook)
+@adapter_config(required=IFile, provides=ICopyHook)
 class BlobFileCopyHook(ContextAdapter):
     """Blob file copy hook
 

@@ -28,7 +28,7 @@ __docformat__ = 'restructuredtext'
 
 
 @adapter_config(name='picture',
-                context=(Interface, Interface, Interface),
+                required=(Interface, Interface, Interface),
                 provides=ITALESExtension)
 class PictureTALESExtension(ContextRequestViewAdapter):
     """Picture TALES adapter
@@ -81,7 +81,7 @@ class PictureTALESExtension(ContextRequestViewAdapter):
 
 
 @adapter_config(name='thumbnails',
-                context=(Interface, Interface, Interface),
+                required=(Interface, Interface, Interface),
                 provides=ITALESExtension)
 class ThumbnailsExtension(ContextRequestViewAdapter):
     """extension:thumbnails(image) TALES extension
@@ -97,7 +97,7 @@ class ThumbnailsExtension(ContextRequestViewAdapter):
 
 
 @adapter_config(name='thumbnail',
-                context=(Interface, Interface, Interface),
+                required=(Interface, Interface, Interface),
                 provides=ITALESExtension)
 class ThumbnailExtension(ContextRequestViewAdapter):
     """extension:thumbnail(image, width, height, css_class, img_class) TALES extension

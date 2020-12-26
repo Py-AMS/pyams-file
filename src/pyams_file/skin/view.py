@@ -57,7 +57,7 @@ def FileView(request):  # pylint: disable=invalid-name
 
     body_file = context.get_blob(mode='c')
 
-    if request.params.get('download') is not None:
+    if request.params.get('dl') is not None:
         filename = context.filename or 'noname.txt'
         response.content_disposition = 'attachment; filename="{0}"'.format(
             translate_string(filename, force_lower=False))

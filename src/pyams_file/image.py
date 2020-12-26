@@ -62,7 +62,7 @@ class ThumbnailGeometry:
         return (self.x2 <= self.x1) or (self.y2 <= self.y1)
 
 
-@adapter_config(context=IImageFile, provides=IThumbnailer)
+@adapter_config(required=IImageFile, provides=IThumbnailer)
 class ImageThumbnailer(ContextAdapter):
     """Image thumbnailer adapter"""
 
@@ -212,7 +212,7 @@ class ImageRatioThumbnailer(ImageSelectionThumbnailer):
         return geometry
 
 
-@adapter_config(name='portrait', context=IImageFile, provides=IThumbnailer)
+@adapter_config(name='portrait', required=IImageFile, provides=IThumbnailer)
 class ImagePortraitThumbnailer(ImageRatioThumbnailer):
     """Image portrait thumbnail adapter"""
 
@@ -222,7 +222,7 @@ class ImagePortraitThumbnailer(ImageRatioThumbnailer):
     ratio = (3, 4)
 
 
-@adapter_config(name='square', context=IImageFile, provides=IThumbnailer)
+@adapter_config(name='square', required=IImageFile, provides=IThumbnailer)
 class ImageSquareThumbnailer(ImageRatioThumbnailer):
     """Image square thumbnail adapter"""
 
@@ -243,7 +243,7 @@ class ImageHorizontalThumbnailer(ImageRatioThumbnailer):
         return round(ratio * thumb_size[0]), round(ratio * thumb_size[1])
 
 
-@adapter_config(name='pano', context=IImageFile, provides=IThumbnailer)
+@adapter_config(name='pano', required=IImageFile, provides=IThumbnailer)
 class ImagePanoThumbnailer(ImageHorizontalThumbnailer):
     """Image panoramic thumbnail adapter"""
 
@@ -253,7 +253,7 @@ class ImagePanoThumbnailer(ImageHorizontalThumbnailer):
     ratio = (16, 9)
 
 
-@adapter_config(name='card', context=IImageFile, provides=IThumbnailer)
+@adapter_config(name='card', required=IImageFile, provides=IThumbnailer)
 class ImageCardThumbnailer(ImageHorizontalThumbnailer):
     """Image card thumbnail adapter"""
 
@@ -263,7 +263,7 @@ class ImageCardThumbnailer(ImageHorizontalThumbnailer):
     ratio = (2, 1)
 
 
-@adapter_config(name='banner', context=IImageFile, provides=IThumbnailer)
+@adapter_config(name='banner', required=IImageFile, provides=IThumbnailer)
 class ImageBannerThumbnailer(ImageRatioThumbnailer):
     """Image banner thumbnail adapter"""
 
@@ -279,7 +279,7 @@ class ResponsiveImageThumbnailer(ImageSelectionThumbnailer):
     section = _("Responsive selections")
 
 
-@adapter_config(name='xs', context=IResponsiveImage, provides=IThumbnailer)
+@adapter_config(name='xs', required=IResponsiveImage, provides=IThumbnailer)
 class XsImageThumbnailer(ResponsiveImageThumbnailer):
     """eXtra-Small responsive image thumbnailer"""
 
@@ -287,7 +287,7 @@ class XsImageThumbnailer(ResponsiveImageThumbnailer):
     weight = 10
 
 
-@adapter_config(name='sm', context=IResponsiveImage, provides=IThumbnailer)
+@adapter_config(name='sm', required=IResponsiveImage, provides=IThumbnailer)
 class SmImageThumbnailer(ResponsiveImageThumbnailer):
     """SMall responsive image thumbnailer"""
 
@@ -295,7 +295,7 @@ class SmImageThumbnailer(ResponsiveImageThumbnailer):
     weight = 11
 
 
-@adapter_config(name='md', context=IResponsiveImage, provides=IThumbnailer)
+@adapter_config(name='md', required=IResponsiveImage, provides=IThumbnailer)
 class MdImageThumbnailer(ResponsiveImageThumbnailer):
     """MeDium responsive image thumbnailer"""
 
@@ -303,7 +303,7 @@ class MdImageThumbnailer(ResponsiveImageThumbnailer):
     weight = 12
 
 
-@adapter_config(name='lg', context=IResponsiveImage, provides=IThumbnailer)
+@adapter_config(name='lg', required=IResponsiveImage, provides=IThumbnailer)
 class LgImageThumbnailer(ResponsiveImageThumbnailer):
     """LarGe responsive image thumbnailer"""
 
@@ -311,7 +311,7 @@ class LgImageThumbnailer(ResponsiveImageThumbnailer):
     weight = 13
 
 
-@adapter_config(name='xl', context=IResponsiveImage, provides=IThumbnailer)
+@adapter_config(name='xl', required=IResponsiveImage, provides=IThumbnailer)
 class XlImageThumbnailer(ResponsiveImageThumbnailer):
     """EXtra-Large responsive image thumbnailer"""
 
