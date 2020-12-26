@@ -22,6 +22,7 @@ from BTrees import OOBTree  # pylint: disable=no-name-in-module
 from persistent.dict import PersistentDict
 from pyramid.events import subscriber
 from pyramid.threadlocal import get_current_registry
+from transaction.interfaces import ITransactionManager
 from zope.interface import alsoProvides
 from zope.lifecycleevent import IObjectRemovedEvent, ObjectAddedEvent, ObjectCreatedEvent, \
     ObjectRemovedEvent
@@ -51,7 +52,7 @@ THUMB_HEIGHT = re.compile(r'^(?:\w+:)?h([0-9]+)$')
 THUMB_SIZE = re.compile(r'^(?:\w+:)?([0-9]+)x([0-9]+)$')
 
 
-@adapter_config(context=IImageFile, provides=IThumbnails)
+@adapter_config(required=IImageFile, provides=IThumbnails)
 class ImageThumbnailAdapter:
     """Image thumbnails adapter"""
 
@@ -262,7 +263,7 @@ def handle_modified_image(event):
         thumbnails.clear_thumbnails()
 
 
-@adapter_config(name='thumb', context=IImageFile, provides=ITraversable)
+@adapter_config(name='thumb', required=IImageFile, provides=ITraversable)
 class ThumbnailTraverser(ContextAdapter):
     """++thumb++ namespace traverser"""
 
@@ -281,4 +282,6 @@ class ThumbnailTraverser(ContextAdapter):
             if selection is not None:
                 thumbnails = IThumbnails(selection)
         # pylint: disable=assignment-from-no-return
-        return thumbnails.get_thumbnail(thumbnail_name, format)
+        result = thumbnails.get_thumbnail(thumbnail_name, format)
+        ITransactionManager(result).commit()
+        return result
