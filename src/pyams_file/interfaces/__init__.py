@@ -20,6 +20,8 @@ from zope.interface import Interface, implementer
 from zope.lifecycleevent import IObjectModifiedEvent, ObjectModifiedEvent
 from zope.schema import Bytes, BytesLine, Choice, Text, TextLine
 
+from pyams_i18n.interfaces import BASE_LANGUAGES_VOCABULARY_NAME
+
 
 __docformat__ = 'restructuredtext'
 
@@ -106,7 +108,7 @@ class IImageFile(IBaseImageFile):
     def get_image_size(self):
         """Returns an (x, y) tuple describing image dimensions"""
 
-    def resize(self, width, height):
+    def resize(self, width, height, keep_ratio=True):
         """Resize image to given dimensions"""
 
     def crop(self, x1, y1, x2, y2):  # pylint: disable=invalid-name
@@ -147,7 +149,7 @@ class IFileInfo(Interface):
 
     language = Choice(title=_("Language"),
                       description=_("File's content language"),
-                      vocabulary="PyAMS base languages",
+                      vocabulary=BASE_LANGUAGES_VOCABULARY_NAME,
                       required=False)
 
 

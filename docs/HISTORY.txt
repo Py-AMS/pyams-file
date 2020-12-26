@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.2.5
+-----
+ - added commit into thumbnails traverser to avoid exceptions for uncommitted blobs
+ - updated "adapter_config" arguments names
+ - updated doctests
+
 1.2.4
 -----
  - updated doctests
