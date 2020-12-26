@@ -484,7 +484,7 @@ Pyramid context, the response body is closed automatically:
 You can also specify a request parameter to get a download of a file, instead of a link to a file
 that will be automatically displayed into a web browser:
 
-    >>> request = DummyRequest(context=content.data, params={'download': 1},
+    >>> request = DummyRequest(context=content.data, params={'dl': 1},
     ...                        range=None, if_modified_since=None)
     >>> response = FileView(request)
     >>> response.status
@@ -495,7 +495,7 @@ that will be automatically displayed into a web browser:
 To get a file name, we have to set it into file properties:
 
     >>> content.data.filename = 'pyams-test.png'
-    >>> request = DummyRequest(context=content.data, params={'download': 1},
+    >>> request = DummyRequest(context=content.data, params={'dl': 1},
     ...                        range=None, if_modified_since=None)
     >>> response = FileView(request)
     >>> response.status
