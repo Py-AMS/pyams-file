@@ -28,7 +28,7 @@ __docformat__ = 'restructuredtext'
 
 
 REQUIRED_UTILITIES = (
-    (IBlobReferenceManager, '', BlobReferencesManager, 'Blobs references manager'),
+    (IBlobReferenceManager, '', None, 'Blobs references manager'),
 )
 
 

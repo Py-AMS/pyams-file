@@ -43,6 +43,7 @@ from zope.schema.fieldproperty import FieldProperty
 from pyams_file.interfaces import FileModifiedEvent, IAudioFile, IBlobReferenceManager, IFile, \
     IFileInfo, IImageFile, ISVGImageFile, IVideoFile
 from pyams_utils.adapter import ContextAdapter, adapter_config
+from pyams_utils.factory import factory_config
 from pyams_utils.registry import get_utility
 from pyams_utils.request import check_request
 
@@ -126,7 +127,7 @@ EXTENSIONS_THUMBNAILS = {
 # Blobs references manager utility
 #
 
-@implementer(IBlobReferenceManager)
+@factory_config(IBlobReferenceManager)
 class BlobReferencesManager(Persistent, Contained):
     """Global blobs references manager utility
 
