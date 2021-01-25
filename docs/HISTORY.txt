@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.3.0
+-----
+ - added IBlobsReferencesManager factory configuration
+ - removed Travis-CI configuration
+
 1.2.5
 -----
  - added commit into thumbnails traverser to avoid exceptions for uncommitted blobs
