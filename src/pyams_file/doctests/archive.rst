@@ -9,6 +9,8 @@ PyAMS_file package offers a few helpers to use archives files and extract their 
 
     >>> config = setUp(hook_zca=True)
 
+    >>> from cornice import includeme as include_cornice
+    >>> include_cornice(config)
     >>> from pyams_utils import includeme as include_utils
     >>> include_utils(config)
     >>> from pyams_file import includeme as include_file

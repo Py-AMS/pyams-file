@@ -30,6 +30,8 @@ ZEOStorage of RelStorage:
     >>> import transaction
     >>> from pyramid_zodbconn import includeme as include_zodbconn
     >>> include_zodbconn(config)
+    >>> from cornice import includeme as include_cornice
+    >>> include_cornice(config)
     >>> from pyams_utils import includeme as include_utils
     >>> include_utils(config)
     >>> from pyams_site import includeme as include_site
