@@ -283,5 +283,5 @@ class ThumbnailTraverser(ContextAdapter):
                 thumbnails = IThumbnails(selection)
         # pylint: disable=assignment-from-no-return
         result = thumbnails.get_thumbnail(thumbnail_name, format)
-        ITransactionManager(result).commit()
+        ITransactionManager(result).commit()  # pylint: disable=too-many-function-args
         return result

@@ -93,8 +93,8 @@ class FileField(Bytes):
                     raise WrongType(filename, str, '{0}.filename'.format(self.__name__))
                 if not hasattr(stream, 'read'):
                     raise WrongType(stream, '<file-like object>', self.__name__)
-            except ValueError:
-                raise WrongType(value, tuple, self.__name__)
+            except ValueError as exc:
+                raise WrongType(value, tuple, self.__name__) from exc
         elif not self.schema.providedBy(value):
             raise WrongType(value, self.schema, self.__name__)
 
@@ -156,11 +156,10 @@ class I18nFileField(I18nField):
 
     def __init__(self, key_type=None, value_type=None,
                  value_min_length=None, value_max_length=None, **kwargs):
-        super(I18nFileField, self).__init__(
-            value_type=FileField(min_length=value_min_length,
-                                 max_length=value_max_length,
-                                 required=False),
-            **kwargs)
+        super().__init__(value_type=FileField(min_length=value_min_length,
+                                              max_length=value_max_length,
+                                              required=False),
+                         **kwargs)
 
     def _validate(self, value):  # pylint: disable=too-many-branches
         if self.required:
@@ -201,8 +200,8 @@ class I18nFileField(I18nField):
                         raise WrongType(filename, str, '{0}.filename'.format(self.__name__))
                     if not hasattr(stream, 'read'):
                         raise WrongType(stream, '<file-like object>', self.__name__)
-                except ValueError:
-                    raise WrongType(lang_value, tuple, self.__name__)
+                except ValueError as exc:
+                    raise WrongType(lang_value, tuple, self.__name__) from exc
             elif not self.value_type.schema.providedBy(lang_value):
                 raise WrongType(lang_value, self.value_type.schema, self.__name__)
 

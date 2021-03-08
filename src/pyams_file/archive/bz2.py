@@ -36,7 +36,7 @@ class BZip2ArchiveExtractor(ArchiveExtractorBase):
 
     def _initialize(self, data, mode='r'):
         """Initialize extractor"""
-        data = super(BZip2ArchiveExtractor, self)._initialize(data, mode)
+        data = super()._initialize(data, mode)
         return data, bz2.BZ2Decompressor()
 
     def get_contents(self, data, mode='r'):

@@ -36,7 +36,7 @@ class GZipArchiveExtractor(ArchiveExtractorBase):
 
     def _initialize(self, data, mode='r'):
         """Initialize extractor"""
-        data = super(GZipArchiveExtractor, self)._initialize(data, mode)
+        data = super()._initialize(data, mode)
         return data, gzip.GzipFile(fileobj=data, mode=mode)
 
     def get_contents(self, data, mode='r'):

@@ -35,7 +35,7 @@ class TarArchiveExtractor(ArchiveExtractorBase):
 
     def _initialize(self, data, mode='r'):
         """Initialize extractor"""
-        data = super(TarArchiveExtractor, self)._initialize(data, mode)
+        data = super()._initialize(data, mode)
         return data, tarfile.open(fileobj=data, mode=mode)
 
     def get_contents(self, data, mode='r'):
