@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.5.0
+-----
+ - added images thumbnailers vocabulary
+ - updated "pictures" TALES extension
+
 1.4.0
 -----
  - removed support for Python < 3.7
