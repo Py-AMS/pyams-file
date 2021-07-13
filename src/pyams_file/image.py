@@ -20,12 +20,18 @@ import re
 from io import BytesIO
 
 from PIL import Image, ImageFilter
+from zope.component import getAdapters
 from zope.interface import implementer
 from zope.schema.fieldproperty import FieldProperty
+from zope.schema.vocabulary import SimpleTerm, SimpleVocabulary
 
-from pyams_file.interfaces import IResponsiveImage, IImageFile
-from pyams_file.interfaces.thumbnail import IThumbnailGeometry, IThumbnailer, IThumbnails
+from pyams_file.file import ImageFile
+from pyams_file.interfaces import IImageFile, IResponsiveImage
+from pyams_file.interfaces.thumbnail import IThumbnailGeometry, IThumbnailer, IThumbnails, \
+    THUMBNAILERS_VOCABULARY_NAME
 from pyams_utils.adapter import ContextAdapter, adapter_config
+from pyams_utils.request import check_request
+from pyams_utils.vocabulary import vocabulary_config
 
 
 __docformat__ = 'restructuredtext'
@@ -69,6 +75,8 @@ class ImageThumbnailer(ContextAdapter):
     label = _("Default thumbnail")
     section = _("Default thumbnail")
     weight = 1
+
+    ratio = (None, None)
 
     def get_default_geometry(self, options=None):    # pylint: disable=unused-argument
         """Default thumbnail geometry"""
@@ -317,3 +325,21 @@ class XlImageThumbnailer(ResponsiveImageThumbnailer):
 
     label = _("Extra-large screen thumbnail")
     weight = 14
+
+
+@vocabulary_config(name=THUMBNAILERS_VOCABULARY_NAME)
+class ImageThumbnailersVocabulary(SimpleVocabulary):
+    """Image thumbnailers vocabulary"""
+
+    def __init__(self, context=None):
+        if not IImageFile.providedBy(context):
+            context = ImageFile()
+        request = check_request()
+        translate = request.localizer.translate
+        terms = []
+        for name, adapter in sorted(getAdapters((context,), IThumbnailer),
+                                    key=lambda x: x[1].weight):
+            if not name:
+                continue
+            terms.append(SimpleTerm(name, title=translate(adapter.label)))
+        super().__init__(terms)

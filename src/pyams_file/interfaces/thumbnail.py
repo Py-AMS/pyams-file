@@ -53,6 +53,9 @@ class IThumbnailGeometry(Interface):
         """Check if geometry is not empty"""
 
 
+THUMBNAILERS_VOCABULARY_NAME = 'pyams_file.image.thumbnailers'
+
+
 class IThumbnailer(Interface):
     """Interface of adapter used to generate image thumbnails"""
 
