@@ -63,17 +63,17 @@ class PictureTALESExtension(ContextRequestViewAdapter):
             def_width = md_width or lg_width or sm_width or xs_width or xl_width
         return render('templates/picture.pt', {
             'image': context,
-            'xl_thumb': xl_thumb,
+            'xl_thumb': xl_thumb or 'xl',
             'xl_width': xl_width,
-            'lg_thumb': lg_thumb,
+            'lg_thumb': lg_thumb or 'lg',
             'lg_width': lg_width,
-            'md_thumb': md_thumb,
+            'md_thumb': md_thumb or 'md',
             'md_width': md_width,
-            'sm_thumb': sm_thumb,
+            'sm_thumb': sm_thumb or 'sm',
             'sm_width': sm_width,
-            'xs_thumb': xs_thumb,
+            'xs_thumb': xs_thumb or 'xs',
             'xs_width': xs_width,
-            'def_thumb': def_thumb,
+            'def_thumb': def_thumb or 'md',
             'def_width': def_width,
             'alt': alt,
             'css_class': css_class
