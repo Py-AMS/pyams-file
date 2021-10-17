@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.5.1
+-----
+ - updated testing dependencies
+
 1.5.0
 -----
  - added images thumbnailers vocabulary

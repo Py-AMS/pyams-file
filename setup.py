@@ -27,7 +27,8 @@ version = '1.5.0'
 long_description = open(README).read() + '\n\n' + open(HISTORY).read()
 
 tests_require = [
-    'pyams_catalog'
+    'pyams_catalog',
+    'pyams_zmi'
 ]
 
 setup(name='pyams_file',
