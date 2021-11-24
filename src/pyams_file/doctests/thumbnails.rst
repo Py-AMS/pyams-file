@@ -251,6 +251,12 @@ You can specify a custom geometry to use to create a thumbnail:
     >>> th17.get_image_size()
     (96, 128)
 
+An image selection helper is available:
+
+    >>> from pyams_file.image import get_image_selection
+    >>> get_image_selection(img, 'square', '128x128')
+    'http://example.com/content/++attr++img_data/++thumb++square:166x166.png/++thumb++128x128.png'
+
 
 Rendering images
 ----------------

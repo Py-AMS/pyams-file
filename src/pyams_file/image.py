@@ -31,6 +31,7 @@ from pyams_file.interfaces.thumbnail import IThumbnailGeometry, IThumbnailer, IT
     THUMBNAILERS_VOCABULARY_NAME
 from pyams_utils.adapter import ContextAdapter, adapter_config
 from pyams_utils.request import check_request
+from pyams_utils.url import absolute_url
 from pyams_utils.vocabulary import vocabulary_config
 
 
@@ -343,3 +344,21 @@ class ImageThumbnailersVocabulary(SimpleVocabulary):
                 continue
             terms.append(SimpleTerm(name, title=translate(adapter.label)))
         super().__init__(terms)
+
+
+def get_image_selection(image, selection, size, request=None):
+    """Image selection helper
+
+    :param image: source image
+    :param selection: image selection name
+    :param size: thumbnail image size of given selection
+    :param request: current request
+    :return str: URL of resulting image selection thumbnail
+    """
+    thumbnails = IThumbnails(image, None)
+    if thumbnails is None:
+        return None
+    thumbnail = IThumbnails(thumbnails.get_selection(selection)).get_thumbnail(size)
+    if request is None:
+        request = check_request()
+    return absolute_url(thumbnail, request)
