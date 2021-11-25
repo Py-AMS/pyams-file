@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.5.2
+-----
+ - added image helper to get selection thumbnail
+
 1.5.1
 -----
  - updated testing dependencies
