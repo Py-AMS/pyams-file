@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.5.4
+-----
+ - updated SVG image rendering
+
 1.5.3
 -----
  - package upgrade because of version mismatch
