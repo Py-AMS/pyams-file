@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.5.5
+-----
+ - corrected doctests
+
 1.5.4
 -----
  - updated SVG image rendering
