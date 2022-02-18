@@ -295,18 +295,18 @@ You can also render SVG images using this function:
 
     >>> img2 = content.data
     >>> render_svg(img2)
-    '<div class=" display-inline align-middle svg-container"...>...<svg ...><path d="..." fill="#fff"/></svg>\n</div>\n'
+    '<div class=" d-inline-block align-middle svg-container"...>...<svg ...><path d="..." fill="#fff"/></svg>\n</div>\n'
 
 You can also provide an alternate text and a custom CSS class:
 
     >>> render_svg(img2, css_class='my-wrapper', img_class='my-picture', alt='My icon')
-    '<div class="my-wrapper display-inline align-middle svg-container"...>...<svg xmlns="..." viewBox="..." class="my-picture"><g><title>My icon</title><path d="..." fill="#fff"></path></g></svg>\n</div>\n'
+    '<div class="my-wrapper d-inline-block align-middle svg-container"...>...<svg xmlns="..." viewBox="..." class="my-picture"><g><title>My icon</title><path d="..." fill="#fff"></path></g></svg>\n</div>\n'
 
 You can also specify width and/or height when rendering an SVG file; default units are given in
 pixels, but you can specify your own unit:
 
     >>> render_svg(img2, width=128, height='3rem')
-    '<div class=" display-inline align-middle svg-container"... style="width: 128px; height: 3rem;">...<svg xmlns="..." viewBox="..."><path d="..." fill="#fff"/></svg>\n</div>\n'
+    '<div class=" d-inline-block align-middle svg-container"... style="width: 128px; height: 3rem;">...<svg xmlns="..." viewBox="..."><path d="..." fill="#fff"/></svg>\n</div>\n'
 
 Note: *render_image* function can render bitmap images as well as SVG images; we only use the
 *render_svg* function here for testing purpose:
@@ -319,7 +319,7 @@ provided by the SVG image:
     ...     alsoProvides(img2, ISVGImageFile)
 
     >>> render_image(img2, width=128, height='3rem')
-    '<div class=" display-inline align-middle svg-container"... style="width: 128px; height: 3rem;">...<svg xmlns="..." viewBox="..."><path d="..." fill="#fff"/></svg>\n</div>\n'
+    '<div class=" d-inline-block align-middle svg-container"... style="width: 128px; height: 3rem;">...<svg xmlns="..." viewBox="..."><path d="..." fill="#fff"/></svg>\n</div>\n'
 
 
 Watermarking
