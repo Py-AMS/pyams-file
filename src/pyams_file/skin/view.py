@@ -15,8 +15,8 @@
 This module provides a Pyramid view used to download any file.
 """
 
+import mimetypes
 from http.client import NOT_MODIFIED, PARTIAL_CONTENT
-
 from pyramid.response import Response
 from pyramid.view import view_config
 from zope.dublincore.interfaces import IZopeDublinCore
@@ -57,10 +57,14 @@ def FileView(request):  # pylint: disable=invalid-name
 
     body_file = context.get_blob(mode='c')
 
-    if request.params.get('dl') is not None:
-        filename = context.filename or 'noname.txt'
+    download = request.params.get('dl')
+    if download is not None:
+        filename = context.filename or f'noname{mimetypes.guess_extension(context.content_type)}'
         response.content_disposition = 'attachment; filename="{0}"'.format(
             translate_string(filename, force_lower=False))
+    elif context.filename:
+        response.content_disposition = 'filename="{0}"'.format(
+            translate_string(context.filename, force_lower=False))
 
     # check for range request
     if request.range is not None:
