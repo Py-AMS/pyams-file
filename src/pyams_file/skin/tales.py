@@ -41,11 +41,17 @@ class PictureTALESExtension(ContextRequestViewAdapter):
                xl_thumb='xl', xl_width=12, lg_thumb='lg', lg_width=12,
                md_thumb='md', md_width=12, sm_thumb='sm', sm_width=12,
                xs_thumb='xs', xs_width=12, def_thumb=None, def_width=None,
-               alt='', css_class=''):
+               alt='', css_class='', selections=None):
         # pylint: disable=too-many-arguments,too-many-locals
         """Render TALES extension"""
         if context is None:
             context = self.context
+        if selections is not None:
+            xl_thumb, xl_width = selections.get('xl').values
+            lg_thumb, lg_width = selections.get('lg').values
+            md_thumb, md_width = selections.get('md').values
+            sm_thumb, sm_width = selections.get('sm').values
+            xs_thumb, xs_width = selections.get('xs').values
         if context.content_type.startswith('image/svg'):
             return render('templates/svg-picture.pt', {
                 'image': context,
