@@ -57,14 +57,19 @@ def FileView(request):  # pylint: disable=invalid-name
 
     body_file = context.get_blob(mode='c')
 
-    download = request.params.get('dl')
-    if download is not None:
-        filename = context.filename or f'noname{mimetypes.guess_extension(context.content_type)}'
-        response.content_disposition = 'attachment; filename="{0}"'.format(
-            translate_string(filename, force_lower=False))
-    elif context.filename:
-        response.content_disposition = 'filename="{0}"'.format(
-            translate_string(context.filename, force_lower=False))
+    # set Content-Disposition header
+    disposition = ''
+    if request.params.get('dl') is not None:
+        disposition = 'attachment'
+
+    filename = context.filename or 'noname'
+    extension = mimetypes.guess_extension(content_type)
+    if extension and not filename.endswith(extension):
+        filename = f'{filename}{extension}'
+    filename = f'filename="{translate_string(filename, force_lower=False)}"'
+
+    disposition_format = '{}; {}' if disposition and filename else '{}{}'
+    response.content_disposition = disposition_format.format(disposition, filename)
 
     # check for range request
     if request.range is not None:

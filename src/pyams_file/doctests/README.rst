@@ -492,7 +492,7 @@ that will be automatically displayed into a web browser:
     >>> response.status
     '200 OK'
     >>> response.content_disposition
-    'attachment; filename="noname.txt"'
+    'attachment; filename="noname.png"'
 
 To get a file name, we have to set it into file properties:
 
