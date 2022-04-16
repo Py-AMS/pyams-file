@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.6.0
+-----
+ - added "selections" argument to *picture* TALES extension (see new PyAMS_skin
+   *BootstrapThumbnailsSelectionDictField* schema field
+ - updated *content-disposition* header handler in file view
+
 1.5.5
 -----
  - corrected doctests
