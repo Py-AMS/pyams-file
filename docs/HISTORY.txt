@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.6.1
+-----
+ - added support for Python 3.10
+ - moved TALES extensions to *pyams_file_views* package
+
 1.6.0
 -----
  - added "selections" argument to *picture* TALES extension (see new PyAMS_skin
