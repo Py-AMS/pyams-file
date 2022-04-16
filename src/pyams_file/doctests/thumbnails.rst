@@ -375,63 +375,6 @@ Watermark opacity can also be set:
     (1320, 770)
 
 
-Rendering pictures
-------------------
-
-"picture" is a PyAMS TALES extension which can be used to render a complete responsive "<picture >"
-HTML tag including all responsive selections of a given image; for testing purposes, we have to
-register Pyramid's renderer:
-
-    >>> from zope.interface import Interface
-    >>> from pyams_utils.interfaces.tales import ITALESExtension
-    >>> from pyams_utils.adapter import ContextRequestAdapter
-    >>> view = ContextRequestAdapter(app, request)
-    >>> alsoProvides(view, Interface)
-    >>> extension = config.registry.queryMultiAdapter((img, request, view), ITALESExtension, name='picture')
-    >>> extension.render()
-    '<picture>...<source media="(max-width: 575px)"...srcset="http://example.com/content/++attr++img_data/++thumb++xs:w576?_=..." />...<source media="(min-width: 576px) and (max-width: 767px)"...srcset="http://example.com/content/++attr++img_data/++thumb++sm:w768?_=..." />...<source media="(min-width: 768px) and (max-width: 991px)"...srcset="http://example.com/content/++attr++img_data/++thumb++md:w992?_=..." />...<source media="(min-width: 992px) and (max-width: 1199px)"...srcset="http://example.com/content/++attr++img_data/++thumb++lg:w1200?_=..." />...<source media="(min-width: 1200px)"...srcset="http://example.com/content/++attr++img_data/++thumb++xl:w1600?_=..." />...<!-- fallback image -->...<img style="max-width: 100%;" class=""... alt="" src="http://example.com/content/++attr++img_data/++thumb++md:w1200?_=..." />...</picture>\n'
-
-You can also use a custom field to define picture selections and width for each device type:
-
-    >>> from pyams_skin.interfaces.schema import BootstrapThumbnailSelection
-    >>> from pyams_skin.schema import BootstrapThumbnailsSelectionDictField
-    >>> class IMySelection(Interface):
-    ...     thumb_selection = BootstrapThumbnailsSelectionDictField(
-    ...         title="Images selection",
-    ...         default_width=6,
-    ...         change_width=False,
-    ...         required=False)
-
-    >>> from zope.schema.fieldproperty import FieldProperty
-    >>> class MySelection:
-    ...     thumb_selection = FieldProperty(IMySelection['thumb_selection'])
-
-    >>> selection = MySelection()
-    >>> thumb_selection = selection.thumb_selection
-    >>> thumb_selection.keys()
-    dict_keys(['xs', 'sm', 'md', 'lg', 'xl'])
-    >>> thumb_selection['xs']
-    <pyams_skin.interfaces.schema.BootstrapThumbnailSelection object at 0x...>
-
-    >>> thumb_selection['xs'].selection = 'portrait'
-    >>> thumb_selection['xs'].selection
-    'portrait'
-    >>> thumb_selection['xs'].cols = 12
-    >>> thumb_selection['xs'].cols
-    12
-
-    >>> extension.render(selections=thumb_selection)
-    '<picture>...<source media="(max-width: 575px)"...srcset="http://example.com/content/++attr++img_data/++thumb++portrait:w576?_=..." />...<source media="(min-width: 576px) and (max-width: 767px)"...srcset="http://example.com/content/++attr++img_data/++thumb++sm:w384?_=..." />...<source media="(min-width: 768px) and (max-width: 991px)"...srcset="http://example.com/content/++attr++img_data/++thumb++md:w496?_=..." />...<source media="(min-width: 992px) and (max-width: 1199px)"...srcset="http://example.com/content/++attr++img_data/++thumb++lg:w600?_=..." />...<source media="(min-width: 1200px)"...srcset="http://example.com/content/++attr++img_data/++thumb++xl:w800?_=..." />...<!-- fallback image -->...<img style="max-width: 100%;" class=""... alt="" src="http://example.com/content/++attr++img_data/++thumb++portrait:w600?_=..." />...</picture>\n'
-
-
-"thumbnail" is another TALES extension, which is used to render an image thumbnail of a source
-image:
-
-    >>> extension = config.registry.queryMultiAdapter((img, request, view), ITALESExtension, name='thumbnail')
-    >>> extension.render()
-    '<img src="http://example.com/content/++attr++img_data?_=..." class="" alt="" />'
-
-
 Using thumbnails traverser
 --------------------------
 
@@ -477,3 +420,4 @@ Tests cleanup:
     >>> manager.clear()
     >>> transaction.commit()
     >>> tearDown()
+

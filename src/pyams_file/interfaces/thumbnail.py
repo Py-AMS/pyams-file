@@ -94,7 +94,7 @@ class IThumbnails(Interface):
         """Get original image size"""
 
     def get_thumbnail_size(self, thumbnail_name, forced=False):
-        """Get real size of the genrated thumbnail
+        """Get real size of the generated thumbnail
 
         If forced is True, the generated thumbnail can be larger than the original
         source
