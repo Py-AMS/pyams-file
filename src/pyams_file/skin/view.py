@@ -16,12 +16,14 @@ This module provides a Pyramid view used to download any file.
 """
 
 import mimetypes
-from http.client import NOT_MODIFIED, PARTIAL_CONTENT
+from http.client import NOT_MODIFIED, OK, PARTIAL_CONTENT
+
 from pyramid.response import Response
 from pyramid.view import view_config
 from zope.dublincore.interfaces import IZopeDublinCore
 
 from pyams_file.interfaces import IFile
+from pyams_utils.rest import handle_cors_headers
 from pyams_utils.unicode import translate_string
 
 
@@ -31,18 +33,32 @@ __docformat__ = 'restructuredtext'
 MAX_RANGE_LENGTH = 1 << 21  # 2 Mb
 
 
-@view_config(context=IFile)
+@view_config(context=IFile, request_method=('GET', 'OPTIONS'))
 def FileView(request):  # pylint: disable=invalid-name
     """Default file view"""
     context = request.context
+
+    # check request method
+    origin = request.headers.get('Origin')
+    if (origin is not None) and (origin != request.host_url):
+        handle_cors_headers(request)
+
+    # initialize response
+    response = Response(headers=request.response.headers)
+
+    # check OPTIONS method
+    if request.method == 'OPTIONS':
+        response.status = OK
+        response.content_type = 'text/plain'
+        return response
 
     # set content type
     content_type = context.content_type
     if isinstance(content_type, bytes):
         content_type = content_type.decode('utf-8')
+    response.content_type = content_type
 
     # check for last modification date
-    response = Response(content_type=content_type)
     zdc = IZopeDublinCore(context, None)
     if zdc is not None:
         modified = zdc.modified
@@ -51,8 +67,8 @@ def FileView(request):  # pylint: disable=invalid-name
             # pylint: disable=no-member
             if if_modified_since and \
                     (int(modified.timestamp()) <= int(if_modified_since.timestamp())):
-                return Response(content_type=content_type,
-                                status=NOT_MODIFIED)
+                response.status = NOT_MODIFIED
+                return response
             response.last_modified = modified
 
     body_file = context.get_blob(mode='c')
