@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.6.2
+-----
+ - added CORS requests handler support to file view
+
 1.6.1
 -----
  - added support for Python 3.10
