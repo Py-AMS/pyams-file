@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.6.3
+-----
+ - specify supported methods in CORS requests handler
+
 1.6.2
 -----
  - added CORS requests handler support to file view
