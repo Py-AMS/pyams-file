@@ -41,7 +41,7 @@ def FileView(request):  # pylint: disable=invalid-name
     # check request method
     origin = request.headers.get('Origin')
     if (origin is not None) and (origin != request.host_url):
-        handle_cors_headers(request)
+        handle_cors_headers(request, allowed_methods=('GET', 'OPTIONS'))
 
     # initialize response
     response = Response(headers=request.response.headers)
