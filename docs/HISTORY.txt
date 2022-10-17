@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.6.4
+-----
+ - automatically remove diacritics from provided file name
+
 1.6.3
 -----
  - specify supported methods in CORS requests handler
