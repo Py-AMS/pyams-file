@@ -32,6 +32,8 @@ from pyams_utils.interfaces.form import NOT_CHANGED, TO_BE_DELETED
 
 __docformat__ = 'restructuredtext'
 
+from pyams_utils.unicode import translate_string
+
 
 _MARKER = object()
 
@@ -88,7 +90,9 @@ class FileProperty:
             if filename is not None:
                 info = IFileInfo(value)
                 if info is not None:
-                    info.filename = filename
+                    info.filename = translate_string(filename,
+                                                     escape_slashes=True,
+                                                     force_lower=False)
         field = self.__field.bind(instance)
         field.validate(value)
         if field.readonly and instance.__dict__.has_key(self.__name):

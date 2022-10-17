@@ -214,7 +214,15 @@ And finally, we can set a file property using a tuple containing a filename and 
     >>> with open(os.path.join(temp_dir, 'data.txt'), 'r+b') as file:
     ...     content.data = ('data.txt', file)
 
-Special values can be used to specify that a fil should be left unchanged or deleted:
+If provided file name contains punctuation or diacritics, they are automatically removed:
+
+    >>> with open(os.path.join(temp_dir, 'data.txt'), 'r+b') as file:
+    ...     content.data = ("da,tà-2'ç.txt", file)
+
+    >>> content.data.filename
+    'data-2c.txt'
+
+Special values can be used to specify that a file should be left unchanged or deleted:
 
     >>> other_content = MyContent()
     >>> locate(other_content, app)
@@ -702,7 +710,7 @@ into our database, several blobs are still present on the filesystem:
 
     >>> transaction.commit()
     >>> len(list(find_files("*.blob", os.path.join(temp_dir, 'blobs'))))
-    18
+    19
 
 Why so many files? Because each time a File object is committed, even when using an history-free
 storage, a new blob file is stored on the filesystem; these files will be removed when using the
