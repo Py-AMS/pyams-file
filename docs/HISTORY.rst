@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.0.0
+-----
+ - migrated to Pyramid 2.0
+ - added support for Python 3.11
+ - updated resampling settings for last Pillow version
+
 1.6.4
 -----
  - automatically remove diacritics from provided file name
