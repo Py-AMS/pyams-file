@@ -163,7 +163,7 @@ database reference before being able to set their content:
 
     >>> content.data = 'This is my file content'
     >>> content.data
-    <pyams_file.file.File object at 0x... oid 0x... in <Connection at ...>>
+    <pyams_file.file.File object at 0x... oid 0x... in <ZODB.Connection.Connection object at 0x...>>
     >>> content.data.__parent__ is content
     True
     >>> content.data.__name__
@@ -418,7 +418,7 @@ We now have a few helpers to manipulate images; let's commit first:
 
     >>> content.data.resize(500, 500, keep_ratio=True)
     >>> content.data.get_size()
-    30391
+    22463
     >>> content.data.get_image_size()
     (500, 155)
 
@@ -427,7 +427,7 @@ unchanged:
 
     >>> content.data.resize(1000, 1000, keep_ratio=True)
     >>> content.data.get_size()
-    30391
+    22463
     >>> content.data.get_image_size()
     (500, 155)
 
@@ -436,14 +436,14 @@ We can also rotate image, or crop on a given selection:
     >>> transaction.commit()
     >>> content.data.rotate(-90)
     >>> content.data.get_size()
-    30819
+    22867
     >>> content.data.get_image_size()
     (155, 500)
 
     >>> transaction.commit()
     >>> content.data.crop(50, 50, 300, 300)
     >>> content.data.get_size()
-    12324
+    9257
     >>> content.data.get_image_size()
     (250, 250)
 
@@ -459,7 +459,7 @@ store images in an image field:
     >>> content.img_data.content_type
     'image/png'
     >>> content.img_data.get_size()
-    12324
+    9257
     >>> content.img_data.get_image_size()
     (250, 250)
 
@@ -489,7 +489,7 @@ Pyramid context, the response body is closed automatically:
     True
     >>> result = response({'REQUEST_METHOD': 'GET'}, lambda x, y: None)
     >>> len(list(result)[0])
-    12324
+    9257
 
 You can also specify a request parameter to get a download of a file, instead of a link to a file
 that will be automatically displayed into a web browser:
@@ -526,12 +526,12 @@ date:
     100
 
     >>> request = DummyRequest(context=content.data, user_agent='Dummy',
-    ...                        range=Range(12000, 13000), if_modified_since=None)
+    ...                        range=Range(9000, 10000), if_modified_since=None)
     >>> response = FileView(request)
     >>> response.status
     '206 Partial Content'
     >>> response.content_length
-    324
+    257
 
     >>> from datetime import datetime, timedelta
     >>> from pyams_utils.timezone import gmtime
