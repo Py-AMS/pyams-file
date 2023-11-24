@@ -125,7 +125,7 @@ class ImageThumbnailer(ContextAdapter):
                         image = image.convert('RGBA')
                 # generate thumbnail
                 new_image = BytesIO()
-                image.resize((width, height), Image.ANTIALIAS) \
+                image.resize((width, height), Image.Resampling.HAMMING) \
                     .filter(ImageFilter.UnsharpMask(radius=0.5, percent=100, threshold=0)) \
                     .save(new_image, format)
                 return new_image, format.lower()
@@ -181,7 +181,7 @@ class ImageSelectionThumbnailer(ImageThumbnailer):
                 new_image = BytesIO()
                 thumb_size = self.get_thumb_size(width, height, geometry)
                 image.crop((geometry.x1, geometry.y1, geometry.x2, geometry.y2)) \
-                    .resize(thumb_size, Image.ANTIALIAS) \
+                    .resize(thumb_size, Image.Resampling.HAMMING) \
                     .filter(ImageFilter.UnsharpMask(radius=0.5, percent=100, threshold=0)) \
                     .save(new_image, format)
                 return new_image, format.lower()

@@ -372,11 +372,11 @@ class ImageFile(File):
                 if keep_ratio:
                     ratio = min(w_ratio, h_ratio)
                     image.resize((round(ratio * image_size[0]), round(ratio * image_size[1])),
-                                 Image.ANTIALIAS) \
+                                 Image.Resampling.HAMMING) \
                          .save(new_image, image.format, quality=99)
                 else:
                     image.resize((round(w_ratio * image_size[0]), round(h_ratio * image_size[1])),
-                                 Image.ANTIALIAS) \
+                                 Image.Resampling.HAMMING) \
                          .save(new_image, image.format, quality=99)
                 self.data = new_image
                 request = check_request()
