@@ -17,6 +17,13 @@ This module is used for Pyramid integration
 
 __docformat__ = 'restructuredtext'
 
+import logging
+
+try:
+    import pillow_avif
+except ImportError:
+    logging.getLogger('PyAMS (file)').warning("Missing pillow_avif plug-in. AVIF image format will not be supported...")
+
 
 def include_package(config):
     """Pyramid package include"""
