@@ -15,6 +15,7 @@
 This module defines files properties which can be used to automatically handle all the magic
 behind external files management; this includes blobs management and their references counting.
 """
+from cgi import FieldStorage
 
 from pyramid.events import subscriber
 from pyramid.threadlocal import get_current_registry
@@ -74,6 +75,9 @@ class FileProperty:
         registry = get_current_registry()
         if (value is not None) and (value is not TO_BE_DELETED):
             filename = None
+            # check for CGI FieldStorage
+            if isinstance(value, FieldStorage):
+                value = (value.filename, value.value)
             # file upload data converter returns a tuple containing
             # filename and buffered IO stream extracted from FieldStorage...
             if isinstance(value, tuple):
