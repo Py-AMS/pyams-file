@@ -16,6 +16,7 @@ This module provides a Pyramid view used to download any file.
 """
 
 import mimetypes
+import urllib
 from http.client import NOT_MODIFIED, OK, PARTIAL_CONTENT
 
 from pyramid.response import Response
@@ -82,7 +83,9 @@ def FileView(request):  # pylint: disable=invalid-name
     extension = mimetypes.guess_extension(content_type)
     if extension and not filename.endswith(extension):
         filename = f'{filename}{extension}'
-    filename = f'filename="{translate_string(filename, force_lower=False)}"'
+    filename = urllib.parse.quote(translate_string(filename, force_lower=False),
+                                  encoding='utf-8')
+    filename = f'filename="{filename}"'
 
     disposition_format = '{}; {}' if disposition and filename else '{}{}'
     response.content_disposition = disposition_format.format(disposition, filename)

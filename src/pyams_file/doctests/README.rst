@@ -513,6 +513,17 @@ To get a file name, we have to set it into file properties:
     >>> response.content_disposition
     'attachment; filename="pyams-test.png"'
 
+We should be able to include any non latin-1 character into a file name:
+
+    >>> content.data.filename = 'pyams-testé-€.png'
+    >>> request = DummyRequest(context=content.data, params={'dl': 1},
+    ...                        range=None, if_modified_since=None)
+    >>> response = FileView(request)
+    >>> response.status
+    '200 OK'
+    >>> response.content_disposition
+    'attachment; filename="pyams-teste-%E2%82%AC.png"'
+
 File view also allows custom headers, like ranged requests or requests based on last modification
 date:
 
