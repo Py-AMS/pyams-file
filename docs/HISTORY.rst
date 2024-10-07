@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.0.3
+-----
+ - added filename conversion in file download view
+
 2.0.2
 -----
  - allow setting of file property field value from CGI FieldStorage
