@@ -19,7 +19,7 @@ import logging
 import re
 
 from BTrees import OOBTree  # pylint: disable=no-name-in-module
-from persistent.dict import PersistentDict
+from persistent.mapping import PersistentMapping
 from pyramid.events import subscriber
 from pyramid.threadlocal import get_current_registry
 from transaction.interfaces import ITransactionManager
@@ -113,7 +113,7 @@ class ImageThumbnailAdapter:
 
     def set_geometry(self, selection_name, geometry):
         """Set geometry for given selection name"""
-        geometries = get_annotation_adapter(self.image, THUMBNAIL_GEOMETRY_KEY, PersistentDict,
+        geometries = get_annotation_adapter(self.image, THUMBNAIL_GEOMETRY_KEY, PersistentMapping,
                                             notify=False, locate=False)
         geometries[selection_name] = geometry
         for current_thumbnail_name in list(self.thumbnails.keys()):
