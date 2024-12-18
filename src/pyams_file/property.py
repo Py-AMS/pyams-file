@@ -80,12 +80,17 @@ class FileProperty:
                 value = (value.filename, value.value)
             # file upload data converter returns a tuple containing
             # filename and buffered IO stream extracted from FieldStorage...
+            content_type = None
             if isinstance(value, tuple):
                 filename, value = value
+                if ';' in filename:
+                    filename, content_type = map(str.strip, filename.split(';', 1))
             # initialize file through factory
             if not IFile.providedBy(value):
                 factory = self.__klass or FileFactory
                 file = factory(value, **self.__args)
+                if content_type is not None:
+                    file.content_type = content_type
                 registry.notify(ObjectCreatedEvent(file))
                 if not file.get_size():
                     value.seek(0)  # because factory may read until end of file...
@@ -171,12 +176,17 @@ class I18nFileProperty:
                 filename = None
                 # file upload data converter returns a tuple containing
                 # filename and buffered IO stream extracted from FieldStorage...
+                content_type = None
                 if isinstance(lang_value, tuple):
                     filename, lang_value = lang_value
+                    if ';' in filename:
+                        filename, content_type = map(str.strip, filename.split(';', 1))
                 # initialize file through factory
                 if not IFile.providedBy(lang_value):
                     factory = self.__klass or FileFactory
                     file = factory(lang_value, **self.__args)
+                    if content_type is not None:
+                        file.content_type = content_type
                     registry.notify(ObjectCreatedEvent(file))
                     if not file.get_size():
                         lang_value.seek(0)  # because factory may read until end of file...

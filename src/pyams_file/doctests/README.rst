@@ -213,6 +213,15 @@ And finally, we can set a file property using a tuple containing a filename and 
 
     >>> with open(os.path.join(temp_dir, 'data.txt'), 'r+b') as file:
     ...     content.data = ('data.txt', file)
+    >>> content.data.content_type
+    'text/plain'
+
+File name can include an optional content-type, separated by a comma:
+
+    >>> with open(os.path.join(temp_dir, 'data.txt'), 'r+b') as file:
+    ...     content.data = ('data.txt; text/plain; charset=utf-8', file)
+    >>> content.data.content_type
+    'text/plain; charset=utf-8'
 
 If provided file name contains punctuation or diacritics, they are automatically removed:
 
@@ -392,6 +401,12 @@ Let's now use our I18n fields properties:
 We can also set a value using a tuple made of filename and file object:
 
     >>> i18n_content.data = {'en': ('test.txt', 'This is my I18n content')}
+
+Eventually, the filename can include an optional content-type, separator with a comma:
+
+    >>> i18n_content.data = {'en': ('test.txt; text/plain; charset=utf-8', 'This is my I18n content')}
+    >>> i18n_content.data['en'].content_type
+    'text/plain; charset=utf-8'
 
 
 Managing images
@@ -721,7 +736,7 @@ into our database, several blobs are still present on the filesystem:
 
     >>> transaction.commit()
     >>> len(list(find_files("*.blob", os.path.join(temp_dir, 'blobs'))))
-    19
+    21
 
 Why so many files? Because each time a File object is committed, even when using an history-free
 storage, a new blob file is stored on the filesystem; these files will be removed when using the
