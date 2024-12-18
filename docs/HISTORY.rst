@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.1.0
+-----
+ - added support for Python 3.12
+ - when setting a property-file value using a "(filename, data)" tuple, you can also set
+   content-type (including an optional charset) by using a "filename; content-type" syntax in
+   the first tuple value
+
 2.0.3
 -----
  - added filename conversion in file download view
