@@ -20,9 +20,18 @@ __docformat__ = 'restructuredtext'
 import logging
 
 try:
-    import pillow_avif
+    from pillow_heif import register_avif_opener, register_heif_opener
 except ImportError:
-    logging.getLogger('PyAMS (file)').warning("Missing pillow_avif plug-in. AVIF image format will not be supported...")
+    logging.getLogger('PyAMS (file)').warning("Missing pillow_heif plug-in. HEIF/HEIC image formats "
+                                              "will not be supported...")
+    try:
+        import pillow_avif
+    except ImportError:
+        logging.getLogger('PyAMS (file)').warning("Missing pillow_avif plug-in. "
+                                                  "AVIF image format will not be supported...")
+else:
+    register_avif_opener()
+    register_heif_opener()
 
 
 def include_package(config):
