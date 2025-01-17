@@ -20,6 +20,7 @@ import re
 from io import BytesIO
 
 from PIL import Image, ImageFilter
+from pyramid.settings import asbool
 from zope.component import getAdapters
 from zope.interface import implementer
 from zope.schema.fieldproperty import FieldProperty
@@ -30,6 +31,7 @@ from pyams_file.interfaces import IImageFile, IResponsiveImage
 from pyams_file.interfaces.thumbnail import IThumbnailGeometry, IThumbnailer, IThumbnails, \
     THUMBNAILERS_VOCABULARY_NAME
 from pyams_utils.adapter import ContextAdapter, adapter_config
+from pyams_utils.registry import get_pyramid_registry
 from pyams_utils.request import check_request
 from pyams_utils.url import absolute_url
 from pyams_utils.vocabulary import vocabulary_config
@@ -40,7 +42,7 @@ __docformat__ = 'restructuredtext'
 from pyams_file import _  # pylint: disable=ungrouped-imports
 
 
-WEB_FORMATS = ('JPEG', 'PNG', 'GIF')
+WEB_FORMATS = ('WEBP', 'AVIF', 'JPEG', 'PNG', 'GIF')
 THUMB_SIZE = re.compile(r'^(?:\w+:)?([0-9]+)x([0-9]+)$')
 
 
