@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.2.0
+-----
+ - added support for WebP, AVIF and HEIF/HEIC images formats using custom Pillow plugins
+ - set WebP as default thumbnails image format
+ - allow setting of preferred or imposed thumbnails image format into configuration
+
 2.1.0
 -----
  - added support for Python 3.12
