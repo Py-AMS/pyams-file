@@ -154,7 +154,7 @@ class ImageThumbnailAdapter:
                 if isinstance(selection, tuple):
                     selection, format = selection
                 else:
-                    format = 'jpeg'
+                    format = 'webp'
                 selection = FileFactory(selection)
                 alsoProvides(selection, IThumbnailFile)
                 registry.notify(ObjectCreatedEvent(selection))
@@ -193,7 +193,7 @@ class ImageThumbnailAdapter:
             # check for original image
             if size == self.get_image_size():
                 return self.image
-            # wee will look for default image thumbnailer
+            # we will look for default image thumbnailer
             thumbnailer_name = ''
             options = name
         else:
@@ -211,7 +211,7 @@ class ImageThumbnailAdapter:
                 if isinstance(thumbnail_image, tuple):
                     thumbnail_image, format = thumbnail_image
                 else:
-                    format = 'jpeg'
+                    format = 'webp'
                 # check watermark
                 if watermark is not None:
                     watermarker = query_utility(IWatermarker)
