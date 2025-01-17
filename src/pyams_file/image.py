@@ -114,11 +114,14 @@ class ImageThumbnailer(ContextAdapter):
                 if blob is None:
                     return None
                 image = Image.open(blob)
+                registry = get_pyramid_registry()
+                if not format:
+                    format = registry.settings.get('pyams_file.thumbnails.format.forced')
                 if not format:
                     format = image.format
                 format = format.upper()
                 if format not in WEB_FORMATS:
-                    format = 'JPEG'
+                    format = registry.settings.get('pyams_file.thumbnails.format.preferred', 'WEBP')
                 # check image mode
                 if image.mode in ('P', 'RGBA'):
                     if format == 'JPEG':
@@ -168,11 +171,14 @@ class ImageSelectionThumbnailer(ImageThumbnailer):
                 if blob is None:
                     return None
                 image = Image.open(blob)
+                registry = get_pyramid_registry()
+                if not format:
+                    format = registry.settings.get('pyams_file.thumbnails.format.forced')
                 if not format:
                     format = image.format
                 format = format.upper()
                 if format not in WEB_FORMATS:
-                    format = 'JPEG'
+                    format = registry.settings.get('pyams_file.thumbnails.format.preferred', 'WEBP')
                 # check image mode
                 if image.mode in ('P', 'RGBA'):
                     if format == 'JPEG':
