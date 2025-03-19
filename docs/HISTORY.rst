@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.3.1
+-----
+ - small refactoring to remove duplicated code
+
 2.3.0
 -----
  - updated subscribers and helpers to correctly handle files deletion
