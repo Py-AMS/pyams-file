@@ -90,6 +90,28 @@ class ImageThumbnailer(ContextAdapter):
         geometry.x2 = width  # pylint: disable=invalid-name
         geometry.y2 = height  # pylint: disable=invalid-name
         return geometry
+    
+    def get_base_image(self, blob, format=None):
+        """Get base image"""
+        if blob is None:
+            return None
+        image = Image.open(blob)
+        registry = get_pyramid_registry()
+        if not format:
+            format = registry.settings.get('pyams_file.thumbnails.format.forced')
+        if not format:
+            format = image.format
+        format = format.upper()
+        if format not in WEB_FORMATS:
+            format = registry.settings.get('pyams_file.thumbnails.format.preferred', 'WEBP')
+        # check image mode
+        if image.mode in ('P', 'RGBA'):
+            if format == 'JPEG':
+                image = image.convert('RGB')
+            elif image.mode != 'RGBA':
+                image = image.convert('RGBA')
+        # generate thumbnail
+        return image, format.lower()
 
     def create_thumbnail(self, target, format=None):
         # pylint: disable=redefined-builtin,too-many-branches
@@ -108,28 +130,10 @@ class ImageThumbnailer(ContextAdapter):
             width, height = target
         else:
             return None
-        # check format
         with self.context as blob:
             try:
-                if blob is None:
-                    return None
-                image = Image.open(blob)
-                registry = get_pyramid_registry()
-                if not format:
-                    format = registry.settings.get('pyams_file.thumbnails.format.forced')
-                if not format:
-                    format = image.format
-                format = format.upper()
-                if format not in WEB_FORMATS:
-                    format = registry.settings.get('pyams_file.thumbnails.format.preferred', 'WEBP')
-                # check image mode
-                if image.mode in ('P', 'RGBA'):
-                    if format == 'JPEG':
-                        image = image.convert('RGB')
-                    elif image.mode != 'RGBA':
-                        image = image.convert('RGBA')
-                # generate thumbnail
                 new_image = BytesIO()
+                image, format = self.get_base_image(blob, format)
                 image.resize((width, height), Image.Resampling.HAMMING) \
                     .filter(ImageFilter.UnsharpMask(radius=0.5, percent=100, threshold=0)) \
                     .save(new_image, format)
@@ -165,29 +169,11 @@ class ImageSelectionThumbnailer(ImageThumbnailer):
             geometry = self.get_default_geometry()
         else:
             return None
-        # check format
         with self.context as blob:
             try:
-                if blob is None:
-                    return None
-                image = Image.open(blob)
-                registry = get_pyramid_registry()
-                if not format:
-                    format = registry.settings.get('pyams_file.thumbnails.format.forced')
-                if not format:
-                    format = image.format
-                format = format.upper()
-                if format not in WEB_FORMATS:
-                    format = registry.settings.get('pyams_file.thumbnails.format.preferred', 'WEBP')
-                # check image mode
-                if image.mode in ('P', 'RGBA'):
-                    if format == 'JPEG':
-                        image = image.convert('RGB')
-                    elif image.mode != 'RGBA':
-                        image = image.convert('RGBA')
-                # generate thumbnail
                 new_image = BytesIO()
                 thumb_size = self.get_thumb_size(width, height, geometry)
+                image, format = self.get_base_image(blob, format)
                 image.crop((geometry.x1, geometry.y1, geometry.x2, geometry.y2)) \
                     .resize(thumb_size, Image.Resampling.HAMMING) \
                     .filter(ImageFilter.UnsharpMask(radius=0.5, percent=100, threshold=0)) \

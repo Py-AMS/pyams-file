@@ -45,8 +45,8 @@ def get_instance_attributes(instance):
                                   notify=False, locate=False)
 
 
-class FileProperty:
-    """Property class used to handle files"""
+class BaseFileProperty:
+    """Base file property"""
 
     def __init__(self, field, name=None, klass=None, **args):
         if not IField.providedBy(field):
@@ -68,6 +68,10 @@ class FileProperty:
             if value is _MARKER:
                 raise AttributeError(self.__name)
         return value
+
+    
+class FileProperty(BaseFileProperty):
+    """Property class used to handle files"""
 
     def __set__(self, instance, value):  # pylint: disable=too-many-branches
         if value is NOT_CHANGED:
@@ -87,8 +91,8 @@ class FileProperty:
                     filename, content_type = map(str.strip, filename.split(';', 1))
             # initialize file through factory
             if not IFile.providedBy(value):
-                factory = self.__klass or FileFactory
-                file = factory(value, **self.__args)
+                factory = self._BaseFileProperty__klass or FileFactory
+                file = factory(value, **self._BaseFileProperty__args)
                 if content_type is not None:
                     file.content_type = content_type
                 registry.notify(ObjectCreatedEvent(file))
@@ -102,68 +106,47 @@ class FileProperty:
                     info.filename = translate_string(filename,
                                                      escape_slashes=True,
                                                      force_lower=False)
-        field = self.__field.bind(instance)
+        field = self._BaseFileProperty__field.bind(instance)
         field.validate(value)
-        if field.readonly and instance.__dict__.has_key(self.__name):
-            raise ValueError(self.__name, "Field is readonly")
-        old_value = instance.__dict__.get(self.__name, _MARKER)
+        if field.readonly and instance.__dict__.has_key(self._BaseFileProperty__name):
+            raise ValueError(self._BaseFileProperty__name, "Field is readonly")
+        old_value = instance.__dict__.get(self._BaseFileProperty__name, _MARKER)
         if old_value != value:
             # check for previous value
             if (old_value is not _MARKER) and (old_value is not None):
                 registry.notify(ObjectRemovedEvent(old_value))
             if value is TO_BE_DELETED:
-                if self.__name in instance.__dict__:
-                    del instance.__dict__[self.__name]
+                if self._BaseFileProperty__name in instance.__dict__:
+                    del instance.__dict__[self._BaseFileProperty__name]
                 attributes = get_instance_attributes(instance)
-                if attributes and (self.__name in attributes):
-                    attributes.remove(self.__name)
+                if attributes and (self._BaseFileProperty__name in attributes):
+                    attributes.remove(self._BaseFileProperty__name)
             else:
                 # set name of new value
-                name = '++attr++{0}'.format(self.__name)
+                name = '++attr++{0}'.format(self._BaseFileProperty__name)
                 if value is not None:
                     locate(value, instance, name)
-                instance.__dict__[self.__name] = value
+                instance.__dict__[self._BaseFileProperty__name] = value
                 # store file attributes of instance
                 if not IFileFieldContainer.providedBy(instance):
                     alsoProvides(instance, IFileFieldContainer)
                 attributes = get_instance_attributes(instance)
-                attributes.add(self.__name)
+                attributes.add(self._BaseFileProperty__name)
                 registry.notify(ObjectAddedEvent(value, instance, name))
 
     def __delete__(self, instance):
         attributes = get_instance_attributes(instance)
-        if attributes and (self.__name in attributes):
-            old_value = instance.__dict__.get(self.__name, _MARKER)
+        if attributes and (self._BaseFileProperty__name in attributes):
+            old_value = instance.__dict__.get(self._BaseFileProperty__name, _MARKER)
             if IFile.providedBy(old_value):
                 registry = get_current_registry()
                 registry.notify(ObjectRemovedEvent(old_value))
-            attributes.remove(self.__name)
-            del instance.__dict__[self.__name]
+            attributes.remove(self._BaseFileProperty__name)
+            del instance.__dict__[self._BaseFileProperty__name]
 
 
-class I18nFileProperty:
+class I18nFileProperty(BaseFileProperty):
     """I18n property class used to handle files"""
-
-    def __init__(self, field, name=None, klass=None, **args):
-        if not IField.providedBy(field):
-            raise ValueError("Provided field must implement IField interface...")
-        if name is None:
-            name = field.__name__
-        self.__field = field
-        self.__name = name
-        self.__klass = klass
-        self.__args = args
-
-    def __get__(self, instance, klass):
-        if instance is None:
-            return self
-        value = instance.__dict__.get(self.__name, _MARKER)
-        if value is _MARKER:
-            field = self.__field.bind(instance)
-            value = getattr(field, 'default', _MARKER)
-            if value is _MARKER:
-                raise AttributeError(self.__name)
-        return value
 
     def __set__(self, instance, value):
         # pylint: disable=too-many-locals,too-many-statements,too-many-branches
@@ -183,8 +166,8 @@ class I18nFileProperty:
                         filename, content_type = map(str.strip, filename.split(';', 1))
                 # initialize file through factory
                 if not IFile.providedBy(lang_value):
-                    factory = self.__klass or FileFactory
-                    file = factory(lang_value, **self.__args)
+                    factory = self._BaseFileProperty__klass or FileFactory
+                    file = factory(lang_value, **self._BaseFileProperty__args)
                     if content_type is not None:
                         file.content_type = content_type
                     registry.notify(ObjectCreatedEvent(file))
@@ -197,11 +180,11 @@ class I18nFileProperty:
                     if info is not None:
                         info.filename = filename
             value[lang] = lang_value
-        field = self.__field.bind(instance)
+        field = self._BaseFileProperty__field.bind(instance)
         field.validate(value)
-        if field.readonly and instance.__dict__.has_key(self.__name):
-            raise ValueError(self.__name, "Field is readonly")
-        old_value = instance.__dict__.get(self.__name, _MARKER)
+        if field.readonly and instance.__dict__.has_key(self._BaseFileProperty__name):
+            raise ValueError(self._BaseFileProperty__name, "Field is readonly")
+        old_value = instance.__dict__.get(self._BaseFileProperty__name, _MARKER)
         if old_value != value:
             # check for previous value
             if old_value is _MARKER:
@@ -213,16 +196,16 @@ class I18nFileProperty:
                 old_lang_value = old_value.get(lang, _MARKER)
                 if (old_lang_value is not _MARKER) and (old_lang_value is not None):
                     registry.notify(ObjectRemovedEvent(old_lang_value))
-                attrname = '{0}::{1}'.format(self.__name, lang)
+                attrname = '{0}::{1}'.format(self._BaseFileProperty__name, lang)
                 if new_lang_value is TO_BE_DELETED:
-                    if (self.__name in instance.__dict__) and (lang in old_value):
+                    if (self._BaseFileProperty__name in instance.__dict__) and (lang in old_value):
                         del old_value[lang]
                     attributes = get_instance_attributes(instance)
                     if attributes and (attrname in attributes):
                         attributes.remove(attrname)
                 else:
                     # set name of new value
-                    name = '++i18n++{0}:{1}'.format(self.__name, lang)
+                    name = '++i18n++{0}:{1}'.format(self._BaseFileProperty__name, lang)
                     if new_lang_value is not None:
                         locate(new_lang_value, instance, name)
                     old_value[lang] = new_lang_value
@@ -232,10 +215,10 @@ class I18nFileProperty:
                     attributes = get_instance_attributes(instance)
                     attributes.add(attrname)
                     registry.notify(ObjectAddedEvent(new_lang_value, instance, name))
-            instance.__dict__[self.__name] = old_value
+            instance.__dict__[self._BaseFileProperty__name] = old_value
 
     def __delete__(self, instance):
-        old_value = instance.__dict__.get(self.__name, _MARKER)
+        old_value = instance.__dict__.get(self._BaseFileProperty__name, _MARKER)
         if (old_value is not _MARKER) and (old_value is not None):
             registry = get_current_registry()
             attributes = get_instance_attributes(instance)
@@ -244,10 +227,10 @@ class I18nFileProperty:
                 if (old_lang_value is not _MARKER) and (old_lang_value is not None):
                     registry.notify(ObjectRemovedEvent(old_lang_value))
                     del old_value[lang]
-                attrname = '{0}::{1}'.format(self.__name, lang)
+                attrname = '{0}::{1}'.format(self._BaseFileProperty__name, lang)
                 if attributes and (attrname in attributes):
                     attributes.remove(attrname)
-        del instance.__dict__[self.__name]
+        del instance.__dict__[self._BaseFileProperty__name]
 
 
 @subscriber(IObjectRemovedEvent, context_selector=IFileFieldContainer)
