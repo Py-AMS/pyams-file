@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.3.0
+-----
+ - updated subscribers and helpers to correctly handle files deletion
+
 2.2.0
 -----
  - added support for WebP, AVIF and HEIF/HEIC images formats using custom Pillow plugins
