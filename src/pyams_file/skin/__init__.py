@@ -15,7 +15,7 @@
 This module provides functions used to render images.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pyquery import PyQuery
 from pyramid.renderers import render
@@ -78,7 +78,7 @@ def render_img(image, width=None, height=None, request=None, css_class='', img_c
     if timestamp:
         zdc = IZopeDublinCore(thumbnail, None)
         if zdc is None:
-            timestamp = datetime.utcnow().timestamp()
+            timestamp = datetime.now(timezone.utc).timestamp()
         else:
             timestamp = zdc.modified.timestamp()    # pylint: disable=no-member
         url += '?_={0}'.format(timestamp)
