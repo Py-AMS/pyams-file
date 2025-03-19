@@ -131,14 +131,14 @@ class FileProperty:
                 registry.notify(ObjectAddedEvent(value, instance, name))
 
     def __delete__(self, instance):
-        old_value = instance.__dict__.get(self.__name, _MARKER)
-        if (old_value is not _MARKER) and (old_value is not None):
-            registry = get_current_registry()
-            registry.notify(ObjectRemovedEvent(old_value))
         attributes = get_instance_attributes(instance)
         if attributes and (self.__name in attributes):
+            old_value = instance.__dict__.get(self.__name, _MARKER)
+            if IFile.providedBy(old_value):
+                registry = get_current_registry()
+                registry.notify(ObjectRemovedEvent(old_value))
             attributes.remove(self.__name)
-        del instance.__dict__[self.__name]
+            del instance.__dict__[self.__name]
 
 
 class I18nFileProperty:
@@ -235,10 +235,10 @@ class I18nFileProperty:
             instance.__dict__[self.__name] = old_value
 
     def __delete__(self, instance):
-        attributes = get_instance_attributes(instance)
         old_value = instance.__dict__.get(self.__name, _MARKER)
         if (old_value is not _MARKER) and (old_value is not None):
             registry = get_current_registry()
+            attributes = get_instance_attributes(instance)
             for lang in list(old_value):
                 old_lang_value = old_value.get(lang, _MARKER)
                 if (old_lang_value is not _MARKER) and (old_lang_value is not None):
@@ -257,5 +257,7 @@ def handle_removed_file_container(event):
     attributes = get_instance_attributes(instance)
     for attr in attributes.copy():
         if '::' in attr:
-            attr, lang = attr.split('::')  # pylint:disable=unused-variable
-        delattr(instance, attr)
+            attr, _lang = attr.split('::')  # pylint:disable=unused-variable
+        if attr in instance.__dict__:
+            delattr(instance, attr)
+    attributes.clear()

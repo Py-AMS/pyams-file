@@ -47,7 +47,6 @@ from pyams_utils.factory import factory_config
 from pyams_utils.registry import get_utility
 from pyams_utils.request import check_request
 
-
 __docformat__ = 'restructuredtext'
 
 
@@ -269,7 +268,11 @@ class File(Persistent, Contained):
         finally:
             f.close()
 
-    data = property(_get_data, _set_data)
+    def _del_data(self):
+        """Delete blob content"""
+        self.remove_blob_reference()
+        
+    data = property(_get_data, _set_data, _del_data)
 
     def get_size(self):
         """Return current blob size"""
@@ -315,7 +318,8 @@ def handle_removed_file(event):
     event.object.remove_blob_reference()
 
 
-@adapter_config(required=IFile, provides=ICopyHook)
+@adapter_config(required=IFile,
+                provides=ICopyHook)
 class BlobFileCopyHook(ContextAdapter):
     """Blob file copy hook
 
@@ -355,7 +359,7 @@ class ImageFile(File):
         img = Image.open(data)
         self.image_size = img.size
 
-    data = property(File._get_data, _set_data)
+    data = property(File._get_data, _set_data, File._del_data)
 
     def get_image_size(self):
         """Get image dimensions"""

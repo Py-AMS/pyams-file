@@ -40,7 +40,7 @@ ZEOStorage of RelStorage:
     Upgrading PyAMS timezone to generation 1...
     Upgrading PyAMS I18n to generation 1...
     Upgrading PyAMS catalog to generation 1...
-    Upgrading PyAMS file to generation 3...
+    Upgrading PyAMS file to generation 4...
 
     >>> from zope.annotation.interfaces import IAttributeAnnotatable
     >>> from zope.dublincore.interfaces import IZopeDublinCore
@@ -583,10 +583,32 @@ date:
 Deleting a file
 ---------------
 
-Two options are available to delete a file (if it's not required!): the first one is just to
-assign a null value to the given property; but to be able to delete a file from a form, there is
-a special value called **TO_BE_DELETED**, defined by PyAMS_utils:
+Three options are available to delete a file (if it's not required!): the first one is just to
+assign a null value to the given property; the second one is by using the "del" instruction; and third
+to be able to delete a file from a form is to assign a special value called **TO_BE_DELETED**, defined by
+PyAMS_utils:
 
+    >>> len(refs.refs)
+    3
+
+    >>> content.data
+    <pyams_file.file.ImageFile object at 0x...>
+    >>> content.data = None
+    >>> content.data is None
+    True
+    >>> len(refs.refs)
+    2
+
+    >>> with open(img_name, 'rb') as file:
+    ...     content.data = file
+    >>> del content.data
+    >>> content.data is None
+    True
+    >>> len(refs.refs)
+    2
+
+    >>> with open(img_name, 'rb') as file:
+    ...     content.data = file
     >>> len(refs.refs)
     3
     >>> from pyams_utils.interfaces.form import TO_BE_DELETED
@@ -660,14 +682,13 @@ Let's remove some files:
     >>> sorted(attributes)
     ['required_data']
 
-You can't delete a property which doesn't exists anymore:
+Deleting the same property several times is not a problem:
 
     >>> content.data is None
     True
     >>> del content.data
-    Traceback (most recent call last):
-    ...
-    KeyError: 'data'
+    >>> content.data is None
+    True
 
     >>> del content.required_data
     >>> sorted(attributes)
@@ -675,9 +696,8 @@ You can't delete a property which doesn't exists anymore:
     >>> content.required_data is None
     True
     >>> del content.required_data
-    Traceback (most recent call last):
-    ...
-    KeyError: 'required_data'
+    >>> content.required_data is None
+    True
 
     >>> len(refs.refs)
     2
@@ -721,6 +741,8 @@ Notifying object destruction will also trigger removal of blobs references:
 
     >>> from zope.lifecycleevent import ObjectRemovedEvent
 
+    >>> IFileFieldContainer.providedBy(content)
+    True
     >>> content.__parent__ = None
     >>> config.registry.notify(ObjectRemovedEvent(content))
 
@@ -736,7 +758,7 @@ into our database, several blobs are still present on the filesystem:
 
     >>> transaction.commit()
     >>> len(list(find_files("*.blob", os.path.join(temp_dir, 'blobs'))))
-    21
+    23
 
 Why so many files? Because each time a File object is committed, even when using an history-free
 storage, a new blob file is stored on the filesystem; these files will be removed when using the
