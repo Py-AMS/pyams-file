@@ -17,12 +17,10 @@
 import sys
 from importlib import import_module
 
-from pyams_file.file import BlobReferencesManager
 from pyams_file.interfaces import IBlobReferenceManager
 from pyams_site.generations import check_required_utilities
 from pyams_site.interfaces import ISiteGenerations
 from pyams_utils.registry import utility_config
-
 
 __docformat__ = 'restructuredtext'
 
@@ -37,7 +35,7 @@ class FilesGenerationsChecker:
     """PyAMS file package generations checker"""
 
     order = 40
-    generation = 3
+    generation = 4
 
     def evolve(self, site, current=None):
         """Check for required utilities, tables and tools"""

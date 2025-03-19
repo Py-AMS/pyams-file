@@ -18,10 +18,12 @@ into blobs manager.
 
 import logging
 
-from zope.intid import IIntIds
+import transaction
 
-from pyams_file.interfaces import IBlobReferenceManager, IFile
+from pyams_file.interfaces import IBlobReferenceManager
+from pyams_site.interfaces import ISiteRoot
 from pyams_utils.registry import get_local_registry, get_utility, set_local_registry
+from pyams_utils.traversing import get_parent
 
 __docformat__ = 'restructuredtext'
 
@@ -35,17 +37,18 @@ def evolve(site):
     try:
         nb_files = 0
         set_local_registry(site.getSiteManager())
-        LOGGER.warning("Creating references to all blobs...")
-        intids = get_utility(IIntIds)
+        LOGGER.warning("Scanning files references for orphaned blobs...")
         references = get_utility(IBlobReferenceManager)
-        for ref in list(intids.refs.keys()):
-            obj = intids.queryObject(ref)
-            if IFile.providedBy(obj):
-                blob = getattr(obj, '_blob', None)
-                if blob is not None:
-                    references.add_reference(blob, obj)
+        for oid, refs in list(references.refs.items()):
+            for ref in refs.copy():
+                root = get_parent(ref, ISiteRoot)
+                if root is None:
                     nb_files += 1
-                LOGGER.debug(f">>> updated blob reference for file {obj!r}")
+                    ref.remove_blob_reference()
+                LOGGER.debug(f">>> removed blob reference for file {ref!r}")
+            transaction.savepoint()
         LOGGER.warning(f"{nb_files} files updated")
+        LOGGER.warning("Blobs references cleanup is finished. Launch *zeopack* (for ZEO storage) "
+                       "or *zodbpack* (for Relstorage) command to remove all unused blobs.")
     finally:
         set_local_registry(registry)
