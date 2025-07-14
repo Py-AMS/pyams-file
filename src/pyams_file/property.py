@@ -15,6 +15,7 @@
 This module defines files properties which can be used to automatically handle all the magic
 behind external files management; this includes blobs management and their references counting.
 """
+
 from cgi import FieldStorage
 
 from pyramid.events import subscriber
@@ -97,7 +98,8 @@ class FileProperty(BaseFileProperty):
                     file.content_type = content_type
                 registry.notify(ObjectCreatedEvent(file))
                 if not file.get_size():
-                    value.seek(0)  # because factory may read until end of file...
+                    if hasattr(value, 'seek'):
+                        value.seek(0)  # because factory may read until end of file...
                     file.data = value
                 value = file
             if filename is not None:
@@ -172,7 +174,8 @@ class I18nFileProperty(BaseFileProperty):
                         file.content_type = content_type
                     registry.notify(ObjectCreatedEvent(file))
                     if not file.get_size():
-                        lang_value.seek(0)  # because factory may read until end of file...
+                        if hasattr(lang_value, 'seek'):
+                            lang_value.seek(0)  # because factory may read until end of file...
                         file.data = lang_value
                     lang_value = file
                 if filename is not None:
