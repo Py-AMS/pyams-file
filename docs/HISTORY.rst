@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.3.3
+-----
+ - updated file view range handler
+
 2.3.2
 -----
  - added check on file property setter
