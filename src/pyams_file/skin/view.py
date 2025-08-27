@@ -102,8 +102,7 @@ def FileView(request):  # pylint: disable=invalid-name
                 range_end = request.range.end or min(body_length, range_start + MAX_RANGE_LENGTH)
             ranged_body = body[range_start:range_end]
             response.status = PARTIAL_CONTENT
-            response.headers['Content-Range'] = 'bytes {first}-{last}/{len}'.format(
-                first=range_start, last=range_start + len(ranged_body) - 1, len=body_length)
+            response.content_range = (range_start, range_start + len(ranged_body), body_length)
             response.body = ranged_body
         finally:
             body_file.close()
